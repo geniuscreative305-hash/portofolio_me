@@ -12,7 +12,7 @@ async function main() {
   });
 
   if (!existingSetting) {
-    const hash = await bcrypt.hash("admin1234", 12);
+    const hash = await bcrypt.hash("porto123", 12);
     await prisma.siteSetting.create({
       data: {
         id: "global",

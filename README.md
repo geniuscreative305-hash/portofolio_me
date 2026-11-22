@@ -136,7 +136,7 @@ npm run start
 ## DEFAULT CREDENTIALS
 ## ═══════════════════════════════════════════════════════════════
 
-After seeding, the default admin PIN is: **`admin1234`**
+After seeding, the default admin PIN is: **`porto123`**
 
 **Change this immediately** via `/admin/settings` → "Change Admin PIN" before going to production!
 
