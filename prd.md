@@ -254,4 +254,18 @@ portofolio/
   - Navbar updated with Home (`#home`) and About (`#about`) links.
   - SiteSetting schema updated with `profilePhotoUrl`, `ownerName`, `aboutBio`, `experienceYears`.
   - Admin Settings (`/admin/settings`) equipped with Vercel Blob profile photo uploader and live preview.
+- v1.2.0 (2026-11-23): Optimasi Performa Ekstrem & Filter Kategori Portofolio:
+  - Server-Rendered Zero-Delay Homepage (Direct Prisma Queries, spinner loading dihapus total).
+  - ParticleCanvas CPU optimization (dihapus shadowBlur, squared distance, tab blur pause).
+  - Filter Tabs Portofolio: Semua, ⚡ Vibe Coding, 🎨 Design, 🔥 Copy Writing dengan animasi layout.
+  - Admin Portfolio Quick-Select Chips untuk 3 kategori utama.
+  - Admin PIN aktif dan terverifikasi: `porto123`.
+- v1.3.0 (2026-11-23): Fitur Cek Order & Tracking Milestone Pekerjaan:
+  - Menu "Cek Order" di Navbar Desktop dan Mobile.
+  - Banner Quick Order Tracker pada halaman depan.
+  - Halaman `/track` dengan visualisasi 4 Tahapan Milestone (Konfirmasi & Analisis → Proses Pengerjaan → Review & Revisi → Selesai & Handover).
+  - Tampilan Catatan Perkembangan Real-Time dari Admin (`Admin Note`) dengan live badge.
+  - Tombol Salin Kode Order & Tombol Konsultasi WhatsApp khusus perkembangan proyek.
+  - Auto-search saat link membawa parameter `?code=...`.
+
 

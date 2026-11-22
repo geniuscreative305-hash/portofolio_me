@@ -70,7 +70,9 @@ export interface OrderItem {
 }
 
 // Public tracker — no WhatsApp exposed
-export type TrackerOrderItem = Omit<OrderItem, "clientWhatsapp">;
+export type TrackerOrderItem = Omit<OrderItem, "clientWhatsapp"> & {
+  adminWhatsapp?: string;
+};
 
 // ─── Testimonial Types ────────────────────────────────────────────────────────
 export interface TestimonialItem {

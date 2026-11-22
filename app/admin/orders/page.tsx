@@ -235,17 +235,20 @@ export default function OrdersPage() {
       {editingNote && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60">
           <div className="bg-[#111827] border border-[#1f2d45] rounded-xl p-6 w-full max-w-md space-y-4">
-            <h3 className="font-semibold">Admin Note</h3>
+            <div>
+              <h3 className="font-semibold text-white">Catatan Progres Proyek</h3>
+              <p className="text-xs text-white/50 mt-1">Catatan ini akan tampil secara real-time di halaman Tracking Klien.</p>
+            </div>
             <textarea
               value={noteValue}
               onChange={(e) => setNoteValue(e.target.value)}
               rows={4}
-              className="admin-input w-full resize-none"
-              placeholder="Internal note (not visible to client)..."
+              className="admin-input w-full resize-none text-sm"
+              placeholder="Contoh: Desain wireframe selesai, saat ini masuk tahap implementasi Next.js..."
             />
             <div className="flex gap-3 justify-end">
-              <button onClick={() => setEditingNote(null)} className="btn-secondary text-sm py-2 px-4">Cancel</button>
-              <button onClick={() => saveNote(editingNote)} className="btn-primary text-sm py-2 px-4">Save Note</button>
+              <button onClick={() => setEditingNote(null)} className="btn-secondary text-sm py-2 px-4">Batal</button>
+              <button onClick={() => saveNote(editingNote)} className="btn-primary text-sm py-2 px-4">Simpan Catatan</button>
             </div>
           </div>
         </div>

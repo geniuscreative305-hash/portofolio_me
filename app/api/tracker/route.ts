@@ -12,32 +12,41 @@ export async function GET(req: NextRequest) {
     return NextResponse.json<ApiResponse>({ success: false, error: "Order code required" }, { status: 400 });
   }
 
-  const order = await prisma.order.findUnique({
-    where: { orderCode: code.trim().toUpperCase() },
-    select: {
-      id: true,
-      orderCode: true,
-      clientName: true,
-      // clientWhatsapp intentionally excluded
-      serviceId: true,
-      service: { select: { title: true, slug: true } },
-      projectBrief: true,
-      budgetEstimate: true,
-      status: true,
-      adminNote: true,
-      hasSubmittedTestimonial: true,
-      createdAt: true,
-      updatedAt: true,
-    },
-  });
+  const [order, setting] = await Promise.all([
+    prisma.order.findUnique({
+      where: { orderCode: code.trim().toUpperCase() },
+      select: {
+        id: true,
+        orderCode: true,
+        clientName: true,
+        // clientWhatsapp intentionally excluded
+        serviceId: true,
+        service: { select: { title: true, slug: true } },
+        projectBrief: true,
+        budgetEstimate: true,
+        status: true,
+        adminNote: true,
+        hasSubmittedTestimonial: true,
+        createdAt: true,
+        updatedAt: true,
+      },
+    }),
+    prisma.siteSetting.findUnique({
+      where: { id: "global" },
+      select: { whatsappNumber: true },
+    }),
+  ]);
 
   if (!order) {
-    return NextResponse.json<ApiResponse>({ success: false, error: "Order not found" }, { status: 404 });
+    return NextResponse.json<ApiResponse>({ success: false, error: "Pesanan dengan kode tersebut tidak ditemukan. Mohon periksa kembali kode order Anda." }, { status: 404 });
   }
 
   return NextResponse.json<ApiResponse<TrackerOrderItem>>({
     success: true,
-    data: order as unknown as TrackerOrderItem,
+    data: {
+      ...order,
+      adminWhatsapp: setting?.whatsappNumber || "6281234567890",
+    } as unknown as TrackerOrderItem,
   });
 }
 
