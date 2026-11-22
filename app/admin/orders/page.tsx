@@ -105,15 +105,15 @@ export default function OrdersPage() {
   };
 
   return (
-    <div className="p-6 space-y-6">
+    <div className="p-4 sm:p-6 lg:p-8 max-w-7xl mx-auto space-y-6 admin-page-enter">
       {/* Header */}
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-2 border-b border-white/5">
         <div>
-          <h1 className="text-2xl font-bold">Orders</h1>
-          <p className="text-white/40 text-sm mt-0.5">{total} total orders</p>
+          <h1 className="text-2xl font-bold tracking-tight text-white">Orders</h1>
+          <p className="text-white/40 text-xs sm:text-sm mt-0.5">Kelola antrean dan progres pesanan klien · <span className="text-emerald-400 font-semibold">{total} total orders</span></p>
         </div>
-        <button onClick={exportCSV} className="btn-secondary text-sm py-2 flex items-center gap-2 self-start sm:self-auto">
-          <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" /></svg>
+        <button onClick={exportCSV} className="btn-secondary text-sm py-2 px-4 flex items-center gap-2 self-start sm:self-auto">
+          <svg className="w-4 h-4 text-emerald-400" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" /></svg>
           Export CSV
         </button>
       </div>

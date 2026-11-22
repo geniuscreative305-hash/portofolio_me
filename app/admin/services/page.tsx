@@ -81,10 +81,13 @@ export default function ServicesPage() {
   };
 
   return (
-    <div className="p-6 space-y-6">
-      <div className="flex items-center justify-between">
-        <div><h1 className="text-2xl font-bold">Services</h1><p className="text-white/40 text-sm mt-0.5">{services.length} services</p></div>
-        <button onClick={openCreate} className="btn-primary text-sm py-2 flex items-center gap-2">
+    <div className="p-4 sm:p-6 lg:p-8 max-w-7xl mx-auto space-y-6 admin-page-enter">
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-2 border-b border-white/5">
+        <div>
+          <h1 className="text-2xl font-bold tracking-tight text-white">Services</h1>
+          <p className="text-white/40 text-xs sm:text-sm mt-0.5">Paket layanan dan penawaran jasa · <span className="text-emerald-400 font-semibold">{services.length} layanan</span></p>
+        </div>
+        <button onClick={openCreate} className="btn-primary text-sm py-2.5 px-4 flex items-center gap-2 self-start sm:self-auto shadow-lg hover:scale-105 transition-all">
           <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" /></svg>
           Add Service
         </button>

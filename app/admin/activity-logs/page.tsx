@@ -37,13 +37,17 @@ export default function ActivityLogsPage() {
   useEffect(() => { fetchLogs(); }, [fetchLogs]);
 
   return (
-    <div className="p-6 space-y-6">
-      <div>
-        <h1 className="text-2xl font-bold">Activity Logs</h1>
-        <p className="text-white/40 text-sm mt-0.5">{total} total entries</p>
+    <div className="p-4 sm:p-6 lg:p-8 max-w-7xl mx-auto space-y-6 admin-page-enter">
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-2 border-b border-white/5">
+        <div>
+          <h1 className="text-2xl font-bold tracking-tight text-white">Activity Logs</h1>
+          <p className="text-white/40 text-xs sm:text-sm mt-0.5">
+            Riwayat lengkap aksi sistem, update data, dan otentikasi admin · <span className="text-emerald-400 font-semibold">{total} entri</span>
+          </p>
+        </div>
       </div>
 
-      <div className="bg-[#111827] border border-[#1f2d45] rounded-xl divide-y divide-[#1f2d45]">
+      <div className="bg-[#0f1623] border border-[#1e2d42] rounded-2xl divide-y divide-[#1e2d42] overflow-hidden shadow-lg">
         {loading ? (
           Array.from({ length: 10 }).map((_, i) => (
             <div key={i} className="px-4 py-4 animate-pulse flex gap-4">

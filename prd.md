@@ -267,5 +267,13 @@ portofolio/
   - Tampilan Catatan Perkembangan Real-Time dari Admin (`Admin Note`) dengan live badge.
   - Tombol Salin Kode Order & Tombol Konsultasi WhatsApp khusus perkembangan proyek.
   - Auto-search saat link membawa parameter `?code=...`.
+- v1.4.0 (2026-11-23): Perapihan Panel Admin & Optimalisasi Responsivitas Navigasi:
+  - Bullet-Proof Layout: Sidebar statis 256px di desktop dengan mobile drawer backdrop-blur.
+  - Top Route Progress Bar: Indikator visual loading di top bar saat pergantian menu.
+  - Next.js Link Prefetching: Transisi menu instan 0-delay tanpa flicker / layar blank.
+  - Page Transition Animasi: Efek `.admin-page-enter` di semua halaman admin.
+  - Kontainer Responsif: Max-w-7xl terpusat dan rapi di monitor lebar / ultrawide.
+  - Dashboard Parallel Query: 1x Promise.all simultan memangkas latensi data.
+
 
 

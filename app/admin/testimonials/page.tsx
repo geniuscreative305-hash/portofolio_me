@@ -75,10 +75,12 @@ export default function TestimonialsPage() {
   const toggleAll = () => setSelected(selected.size === items.length ? new Set() : new Set(items.map((i) => i.id)));
 
   return (
-    <div className="p-6 space-y-6">
-      <div>
-        <h1 className="text-2xl font-bold">Testimonials</h1>
-        <p className="text-white/40 text-sm mt-0.5">{total} total</p>
+    <div className="p-4 sm:p-6 lg:p-8 max-w-7xl mx-auto space-y-6 admin-page-enter">
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-2 border-b border-white/5">
+        <div>
+          <h1 className="text-2xl font-bold tracking-tight text-white">Testimonials</h1>
+          <p className="text-white/40 text-xs sm:text-sm mt-0.5">Moderasi dan kurasi ulasan klien · <span className="text-emerald-400 font-semibold">{total} total ulasan</span></p>
+        </div>
       </div>
 
       {/* Bulk */}

@@ -116,12 +116,28 @@
 
 /* Admin layout */
 .admin-sidebar-width {
-  width: 240px;
+  width: 224px;
 }
 
 @media (max-width: 768px) {
   .admin-sidebar-width {
     width: 100%;
   }
+}
+
+/* Admin page transition */
+@keyframes adminFadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(6px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.admin-page-enter {
+  animation: adminFadeIn 0.22s ease-out forwards;
 }
 

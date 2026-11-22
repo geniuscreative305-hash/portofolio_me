@@ -46,29 +46,38 @@ export default function AdminDashboard() {
   useEffect(() => {
     async function fetch_data() {
       try {
-        const [ordersRes, portfolioRes, servicesRes, testimonialsRes, logsRes] = await Promise.all([
+        const [
+          ordersRes,
+          portfolioRes,
+          servicesRes,
+          testimonialsRes,
+          logsRes,
+          pendingRes,
+          completedRes,
+        ] = await Promise.all([
           fetch("/api/orders?pageSize=1"),
           fetch("/api/portfolio?pageSize=1"),
           fetch("/api/services"),
           fetch("/api/testimonials?pageSize=1"),
           fetch("/api/activity-logs?pageSize=10"),
+          fetch("/api/orders?status=PENDING&pageSize=1"),
+          fetch("/api/orders?status=COMPLETED&pageSize=1"),
         ]);
 
-        const [ordersData, portfolioData, servicesData, testimonialsData, logsData] = await Promise.all([
+        const [
+          ordersData,
+          portfolioData,
+          servicesData,
+          testimonialsData,
+          logsData,
+          pendingData,
+          completedData,
+        ] = await Promise.all([
           ordersRes.json(),
           portfolioRes.json(),
           servicesRes.json(),
           testimonialsRes.json(),
           logsRes.json(),
-        ]);
-
-        // Fetch pending counts separately
-        const [pendingRes, completedRes, pendingTestRes] = await Promise.all([
-          fetch("/api/orders?status=PENDING&pageSize=1"),
-          fetch("/api/orders?status=COMPLETED&pageSize=1"),
-          fetch("/api/testimonials?pageSize=1"),
-        ]);
-        const [pendingData, completedData] = await Promise.all([
           pendingRes.json(),
           completedRes.json(),
         ]);
@@ -91,7 +100,7 @@ export default function AdminDashboard() {
   }, []);
 
   return (
-    <div className="p-6 space-y-8">
+    <div className="p-4 sm:p-6 lg:p-8 max-w-7xl mx-auto space-y-6 admin-page-enter">
       <div>
         <h1 className="text-2xl font-bold">Dashboard</h1>
         <p className="text-white/40 text-sm mt-1">Welcome back. Here&apos;s what&apos;s happening.</p>
