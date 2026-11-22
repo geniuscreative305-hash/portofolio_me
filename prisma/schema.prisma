@@ -1,0 +1,116 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
+// ENUMS
+// ─────────────────────────────────────────────────────────────────────────────
+
+enum PortfolioStatus {
+  DRAFT
+  PUBLISHED
+}
+
+enum OrderStatus {
+  PENDING
+  IN_PROGRESS
+  REVISION
+  COMPLETED
+  CANCELLED
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
+// MODELS
+// ─────────────────────────────────────────────────────────────────────────────
+
+model Service {
+  id        String   @id @default(cuid())
+  title     String
+  slug      String   @unique
+  category  String
+  shortDesc String
+  priceStart Int
+  features  String[]
+  isActive  Boolean  @default(true)
+  sortOrder Int      @default(0)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  orders    Order[]
+  portfolio Portfolio[]
+}
+
+model Portfolio {
+  id               String          @id @default(cuid())
+  title            String
+  category         String
+  shortDesc        String
+  fullDescription  String          @db.Text
+  thumbnailUrl     String
+  techStack        String[]
+  liveDemoUrl      String?
+  relatedServiceId String?
+  status           PortfolioStatus @default(DRAFT)
+  isFeatured       Boolean         @default(false)
+  createdAt        DateTime        @default(now())
+  updatedAt        DateTime        @updatedAt
+
+  relatedService Service? @relation(fields: [relatedServiceId], references: [id], onDelete: SetNull)
+}
+
+model Order {
+  id                     String      @id @default(cuid())
+  orderCode              String      @unique
+  clientName             String
+  clientWhatsapp         String
+  serviceId              String
+  projectBrief           String      @db.Text
+  budgetEstimate         String
+  status                 OrderStatus @default(PENDING)
+  adminNote              String?     @db.Text
+  hasSubmittedTestimonial Boolean    @default(false)
+  createdAt              DateTime    @default(now())
+  updatedAt              DateTime    @updatedAt
+
+  service Service @relation(fields: [serviceId], references: [id])
+}
+
+model Testimonial {
+  id         String   @id @default(cuid())
+  orderCode  String   @unique
+  clientName String
+  clientRole String
+  rating     Int
+  content    String   @db.Text
+  isApproved Boolean  @default(false)
+  createdAt  DateTime @default(now())
+}
+
+model ActivityLog {
+  id          String   @id @default(cuid())
+  action      String
+  entityType  String
+  entityId    String?
+  description String
+  createdAt   DateTime @default(now())
+}
+
+model SiteSetting {
+  id             String   @id @default("global")
+  heroRoles      String[]
+  heroHeadline   String
+  heroSubheadline String
+  whatsappNumber String
+  isOpenOrder    Boolean  @default(true)
+  adminPinHash   String
+  updatedAt      DateTime @updatedAt
+}
+
