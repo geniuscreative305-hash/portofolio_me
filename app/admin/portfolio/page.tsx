@@ -293,7 +293,23 @@ export default function PortfolioPage() {
                     <h3 className="text-sm font-semibold text-white/70">Meta</h3>
                     <div>
                       <label className="text-xs text-white/50 mb-1 block">Category *</label>
-                      <input value={form.category} onChange={(e) => setForm((f) => ({ ...f, category: e.target.value }))} className="admin-input w-full" placeholder="Development" />
+                      <input value={form.category} onChange={(e) => setForm((f) => ({ ...f, category: e.target.value }))} className="admin-input w-full" placeholder="Vibe Coding / Design / Copy Writing" />
+                      <div className="flex gap-1.5 mt-2 flex-wrap">
+                        {["Vibe Coding", "Design", "Copy Writing"].map((cat) => (
+                          <button
+                            key={cat}
+                            type="button"
+                            onClick={() => setForm((f) => ({ ...f, category: cat }))}
+                            className={`text-[11px] px-2.5 py-1 rounded-full border transition-all ${
+                              form.category === cat
+                                ? "bg-emerald-500/20 text-emerald-300 border-emerald-500/50 font-semibold shadow-sm"
+                                : "bg-white/5 text-white/60 border-white/10 hover:bg-white/10 hover:text-white"
+                            }`}
+                          >
+                            {cat}
+                          </button>
+                        ))}
+                      </div>
                     </div>
                     <div>
                       <label className="text-xs text-white/50 mb-1 block">Related Service</label>
