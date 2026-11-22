@@ -16,15 +16,18 @@ async function main() {
     await prisma.siteSetting.create({
       data: {
         id: "global",
+        ownerName: "Azi Ramdani",
+        experienceYears: 5,
+        aboutBio:
+          "Dengan pengalaman mendalam dalam ekosistem digital, saya memadukan kepekaan estetika UI/UX kelas dunia, kecepatan eksekusi vibe coding (Apps Script & Web App), serta kekuatan seni copywriting yang berorientasi konversi.",
         heroRoles: [
-          "Full-Stack Developer",
-          "UI/UX Designer",
-          "Mobile App Expert",
-          "WordPress Specialist",
+          "Full-Stack Vibe Coder",
+          "UI/UX Specialist",
+          "Persuasive Copywriter",
         ],
-        heroHeadline: "Turning Ideas Into Digital Reality",
+        heroHeadline: "Crafting High-Impact Digital Experiences.",
         heroSubheadline:
-          "I craft high-performance web applications and stunning digital experiences that drive real business results.",
+          "Memadukan kepekaan estetika UI/UX kelas dunia, kecepatan eksekusi vibe coding (Apps Script & Web App), serta kekuatan seni copywriting yang berorientasi konversi.",
         whatsappNumber: "6281234567890",
         isOpenOrder: true,
         adminPinHash: hash,
@@ -32,7 +35,21 @@ async function main() {
     });
     console.log("✅ SiteSetting seeded (default PIN: admin1234)");
   } else {
-    console.log("⏭️  SiteSetting already exists, skipping.");
+    await prisma.siteSetting.update({
+      where: { id: "global" },
+      data: {
+        ownerName: "Azi Ramdani",
+        experienceYears: 5,
+        aboutBio:
+          "Dengan pengalaman mendalam dalam ekosistem digital, saya memadukan kepekaan estetika UI/UX kelas dunia, kecepatan eksekusi vibe coding (Apps Script & Web App), serta kekuatan seni copywriting yang berorientasi konversi.",
+        heroRoles: [
+          "Full-Stack Vibe Coder",
+          "UI/UX Specialist",
+          "Persuasive Copywriter",
+        ],
+      },
+    });
+    console.log("✅ SiteSetting updated with Azi Ramdani profile & roles");
   }
 
   // ── Services ─────────────────────────────────────────────────────────────

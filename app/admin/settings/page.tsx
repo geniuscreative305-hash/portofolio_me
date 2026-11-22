@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
+import Image from "next/image";
 import { showToast } from "@/components/admin/Toast";
 import type { SiteSettingItem } from "@/types";
 
@@ -8,8 +9,15 @@ export default function SettingsPage() {
   const [settings, setSettings] = useState<SiteSettingItem | null>(null);
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
+  const [uploadingPhoto, setUploadingPhoto] = useState(false);
 
-  // Form state
+  // Profile & About state
+  const [ownerName, setOwnerName] = useState("");
+  const [profilePhotoUrl, setProfilePhotoUrl] = useState("");
+  const [aboutBio, setAboutBio] = useState("");
+  const [experienceYears, setExperienceYears] = useState("5");
+
+  // Hero & Order state
   const [heroHeadline, setHeroHeadline] = useState("");
   const [heroSubheadline, setHeroSubheadline] = useState("");
   const [heroRolesText, setHeroRolesText] = useState("");
@@ -28,14 +36,41 @@ export default function SettingsPage() {
       .then((data) => {
         const s: SiteSettingItem = data.data;
         setSettings(s);
-        setHeroHeadline(s.heroHeadline);
-        setHeroSubheadline(s.heroSubheadline);
-        setHeroRolesText(s.heroRoles.join("\n"));
-        setWhatsappNumber(s.whatsappNumber);
+        setOwnerName(s.ownerName || "Azi Ramdani");
+        setProfilePhotoUrl(s.profilePhotoUrl || "");
+        setAboutBio(s.aboutBio || "");
+        setExperienceYears(String(s.experienceYears || 5));
+        setHeroHeadline(s.heroHeadline || "");
+        setHeroSubheadline(s.heroSubheadline || "");
+        setHeroRolesText((s.heroRoles || []).join("\n"));
+        setWhatsappNumber(s.whatsappNumber || "");
         setIsOpenOrder(s.isOpenOrder);
         setLoading(false);
       });
   }, []);
+
+  const handlePhotoUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    setUploadingPhoto(true);
+    try {
+      const fd = new FormData();
+      fd.append("file", file);
+      fd.append("folder", "profile");
+      const res = await fetch("/api/upload", { method: "POST", body: fd });
+      const data = await res.json();
+      if (data.success) {
+        setProfilePhotoUrl(data.data.url);
+        showToast("Profile photo uploaded to Vercel Blob", "success");
+      } else {
+        showToast(data.error ?? "Failed to upload photo", "error");
+      }
+    } catch {
+      showToast("Network error during photo upload", "error");
+    } finally {
+      setUploadingPhoto(false);
+    }
+  };
 
   const handleSaveGeneral = async () => {
     setSaving(true);
@@ -44,6 +79,10 @@ export default function SettingsPage() {
         method: "PATCH",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
+          ownerName,
+          profilePhotoUrl,
+          aboutBio,
+          experienceYears: parseInt(experienceYears, 10) || 5,
           heroHeadline,
           heroSubheadline,
           heroRoles: heroRolesText.split("\n").map((r) => r.trim()).filter(Boolean),
@@ -53,10 +92,10 @@ export default function SettingsPage() {
       });
       const data = await res.json();
       if (data.success) {
-        showToast("Settings saved", "success");
+        showToast("Settings saved successfully", "success");
         setSettings(data.data);
       } else {
-        showToast(data.error ?? "Failed to save", "error");
+        showToast(data.error ?? "Failed to save settings", "error");
       }
     } finally {
       setSaving(false);
@@ -96,6 +135,103 @@ export default function SettingsPage() {
       <div>
         <h1 className="text-2xl font-bold">Settings</h1>
         <p className="text-white/40 text-sm mt-0.5">Configure site content and preferences</p>
+      </div>
+
+      {/* Profile & About Me Settings */}
+      <div className="bg-[#111827] border border-[#1f2d45] rounded-xl p-6 space-y-6">
+        <div>
+          <h2 className="text-base font-semibold">Profile &amp; About Me</h2>
+          <p className="text-xs text-white/40 mt-0.5">Kelola foto profil, nama pemilik, dan deskripsi diri untuk halaman publik.</p>
+        </div>
+
+        {/* Profile Photo Uploader */}
+        <div className="p-4 bg-[#1a2235] rounded-xl flex flex-col sm:flex-row items-center gap-6">
+          <div className="relative w-28 h-36 rounded-2xl overflow-hidden border border-white/15 bg-black/30 flex-shrink-0">
+            {profilePhotoUrl ? (
+              <Image src={profilePhotoUrl} alt="Profile preview" fill className="object-cover object-top" />
+            ) : (
+              <div className="w-full h-full flex flex-col items-center justify-center text-white/30 text-xs">
+                <span>No Photo</span>
+              </div>
+            )}
+          </div>
+
+          <div className="flex-1 space-y-3 w-full">
+            <p className="font-medium text-sm">Foto Profil Utama</p>
+            <p className="text-xs text-white/40">Foto ini tampil di Hero Section dengan floating badges dan di Section About.</p>
+
+            <div className="flex flex-wrap gap-2">
+              <label className="btn-primary text-xs py-2 px-4 cursor-pointer inline-flex items-center gap-2">
+                {uploadingPhoto ? (
+                  <>
+                    <svg className="w-3.5 h-3.5 animate-spin" fill="none" viewBox="0 0 24 24"><circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"/><path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"/></svg>
+                    <span>Mengunggah...</span>
+                  </>
+                ) : (
+                  <>
+                    <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12"/></svg>
+                    <span>Upload Foto Baru (Vercel Blob)</span>
+                  </>
+                )}
+                <input type="file" accept="image/jpeg,image/png,image/webp" onChange={handlePhotoUpload} className="hidden" disabled={uploadingPhoto} />
+              </label>
+
+              {profilePhotoUrl && (
+                <button
+                  type="button"
+                  onClick={() => setProfilePhotoUrl("")}
+                  className="btn-danger text-xs py-2 px-3"
+                >
+                  Hapus Foto
+                </button>
+              )}
+            </div>
+
+            <div>
+              <label className="text-[11px] text-white/40 mb-1 block">Atau masukkan URL gambar langsung</label>
+              <input
+                type="text"
+                value={profilePhotoUrl}
+                onChange={(e) => setProfilePhotoUrl(e.target.value)}
+                className="admin-input w-full text-xs font-mono"
+                placeholder="https://..."
+              />
+            </div>
+          </div>
+        </div>
+
+        <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+          <div className="sm:col-span-2">
+            <label className="text-xs text-white/50 mb-1 block">Nama Pemilik (Owner Name)</label>
+            <input
+              value={ownerName}
+              onChange={(e) => setOwnerName(e.target.value)}
+              className="admin-input w-full"
+              placeholder="Azi Ramdani"
+            />
+          </div>
+          <div>
+            <label className="text-xs text-white/50 mb-1 block">Pengalaman (Tahun)</label>
+            <input
+              type="number"
+              value={experienceYears}
+              onChange={(e) => setExperienceYears(e.target.value)}
+              className="admin-input w-full font-mono"
+              placeholder="5"
+            />
+          </div>
+        </div>
+
+        <div>
+          <label className="text-xs text-white/50 mb-1 block">Deskripsi Profil (About Me Bio)</label>
+          <textarea
+            value={aboutBio}
+            onChange={(e) => setAboutBio(e.target.value)}
+            rows={4}
+            className="admin-input w-full resize-none text-sm leading-relaxed"
+            placeholder="Dengan pengalaman mendalam dalam ekosistem digital, saya memadukan kepekaan estetika UI/UX kelas dunia, kecepatan eksekusi vibe coding..."
+          />
+        </div>
       </div>
 
       {/* General Settings */}

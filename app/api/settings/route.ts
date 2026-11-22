@@ -10,6 +10,10 @@ export async function GET() {
     where: { id: "global" },
     select: {
       id: true,
+      ownerName: true,
+      profilePhotoUrl: true,
+      aboutBio: true,
+      experienceYears: true,
       heroRoles: true,
       heroHeadline: true,
       heroSubheadline: true,
@@ -30,10 +34,17 @@ export async function GET() {
 export async function PATCH(req: NextRequest) {
   try {
     const body = await req.json();
-    const { heroRoles, heroHeadline, heroSubheadline, whatsappNumber, isOpenOrder, currentPin, newPin } = body;
+    const {
+      ownerName, profilePhotoUrl, aboutBio, experienceYears,
+      heroRoles, heroHeadline, heroSubheadline, whatsappNumber, isOpenOrder, currentPin, newPin,
+    } = body;
 
     const updateData: Record<string, unknown> = {};
 
+    if (ownerName !== undefined) updateData.ownerName = ownerName;
+    if (profilePhotoUrl !== undefined) updateData.profilePhotoUrl = profilePhotoUrl;
+    if (aboutBio !== undefined) updateData.aboutBio = aboutBio;
+    if (experienceYears !== undefined) updateData.experienceYears = Number(experienceYears);
     if (heroRoles !== undefined) updateData.heroRoles = heroRoles;
     if (heroHeadline !== undefined) updateData.heroHeadline = heroHeadline;
     if (heroSubheadline !== undefined) updateData.heroSubheadline = heroSubheadline;
@@ -63,7 +74,8 @@ export async function PATCH(req: NextRequest) {
       where: { id: "global" },
       data: updateData,
       select: {
-        id: true, heroRoles: true, heroHeadline: true, heroSubheadline: true,
+        id: true, ownerName: true, profilePhotoUrl: true, aboutBio: true, experienceYears: true,
+        heroRoles: true, heroHeadline: true, heroSubheadline: true,
         whatsappNumber: true, isOpenOrder: true, updatedAt: true,
       },
     });
@@ -74,7 +86,7 @@ export async function PATCH(req: NextRequest) {
       description: `Settings updated: ${Object.keys(updateData).filter((k) => k !== "adminPinHash").join(", ")}${newPin ? ", adminPin" : ""}`,
     });
 
-    return NextResponse.json<ApiResponse>({ success: true, data: updated });
+    return NextResponse.json<ApiResponse>({ success: true, data: updated as unknown as SiteSettingItem });
   } catch (err) {
     console.error("[settings PATCH]", err);
     return NextResponse.json<ApiResponse>({ success: false, error: "Failed to update settings" }, { status: 500 });

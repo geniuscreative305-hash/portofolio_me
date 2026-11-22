@@ -104,13 +104,17 @@ model ActivityLog {
 }
 
 model SiteSetting {
-  id             String   @id @default("global")
-  heroRoles      String[]
-  heroHeadline   String
+  id              String   @id @default("global")
+  ownerName       String   @default("Azi Ramdani")
+  profilePhotoUrl String?
+  aboutBio        String?  @db.Text
+  experienceYears Int      @default(5)
+  heroRoles       String[]
+  heroHeadline    String
   heroSubheadline String
-  whatsappNumber String
-  isOpenOrder    Boolean  @default(true)
-  adminPinHash   String
-  updatedAt      DateTime @updatedAt
+  whatsappNumber  String
+  isOpenOrder     Boolean  @default(true)
+  adminPinHash    String
+  updatedAt       DateTime @updatedAt
 }
 

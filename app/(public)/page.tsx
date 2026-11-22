@@ -3,6 +3,7 @@
 import { useState, useEffect, useRef, useCallback, MouseEvent } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import Image from "next/image";
+import ParticleCanvas from "@/components/public/ParticleCanvas";
 import type { ServiceItem, PortfolioItem, TestimonialItem, SiteSettingItem, OrderFormData } from "@/types";
 
 // ─── Hero Typing Animation ───────────────────────────────────────────────────
@@ -494,12 +495,17 @@ export default function HomePage() {
   }
 
   return (
-    <div className="min-h-screen bg-[#090d16]">
+    <div className="min-h-screen bg-[#090d16] relative overflow-hidden">
+      {/* ── Interactive HTML5 Particle Network Canvas ── */}
+      <ParticleCanvas />
+
       {/* ── Navbar ── */}
-      <nav className="fixed top-0 inset-x-0 z-40 bg-[#090d16]/80 backdrop-blur-md border-b border-white/5">
+      <nav className="fixed top-0 inset-x-0 z-40 bg-[#090d16]/85 backdrop-blur-md border-b border-white/5">
         <div className="max-w-6xl mx-auto px-4 h-16 flex items-center justify-between">
-          <span className="text-lg font-bold gradient-text">Portfolio.</span>
+          <a href="#home" className="text-lg font-bold gradient-text">Portfolio.</a>
           <div className="hidden sm:flex items-center gap-6 text-sm text-white/70">
+            <a href="#home" className="hover:text-white transition-colors">Home</a>
+            <a href="#about" className="hover:text-white transition-colors">About</a>
             <a href="#services" className="hover:text-white transition-colors">Services</a>
             <a href="#portfolio" className="hover:text-white transition-colors">Portfolio</a>
             <a href="#testimonials" className="hover:text-white transition-colors">Reviews</a>
@@ -508,62 +514,276 @@ export default function HomePage() {
             </button>
           </div>
           <div className="flex sm:hidden gap-3">
+            <a href="#about" className="text-xs text-white/70 py-2">About</a>
             <button onClick={() => scrollToOrder()} className="btn-primary py-2 px-3 text-xs">Order</button>
             <a href="/track" className="btn-secondary py-2 px-3 text-xs">Track</a>
           </div>
         </div>
       </nav>
 
-      {/* ── Hero ── */}
-      <section className="pt-32 pb-24 px-4 min-h-screen flex items-center">
+      {/* ── Hero (Home) ── */}
+      <section id="home" className="pt-32 pb-20 px-4 min-h-screen flex items-center relative z-10">
         <div className="max-w-6xl mx-auto w-full">
-          <motion.div
-            className="text-center space-y-6"
-            initial={{ opacity: 0, y: 30 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.8 }}
-          >
-            <div className="inline-flex items-center gap-2 bg-emerald-500/10 border border-emerald-500/20 rounded-full px-4 py-2 text-sm text-emerald-400">
-              <span className="w-2 h-2 bg-emerald-400 rounded-full animate-pulse" />
-              {data.setting.isOpenOrder ? "Open for new projects" : "Currently unavailable"}
-            </div>
+          <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 lg:gap-8 items-center">
+            {/* Left Column (Content) */}
+            <motion.div
+              className="lg:col-span-7 space-y-6 text-left"
+              initial={{ opacity: 0, x: -30 }}
+              animate={{ opacity: 1, x: 0 }}
+              transition={{ duration: 0.8 }}
+            >
+              <div className="inline-flex items-center gap-2 bg-amber-500/10 border border-amber-500/25 rounded-full px-4 py-1.5 text-xs sm:text-sm font-medium text-amber-400 shadow-sm">
+                <span className="w-2 h-2 bg-amber-400 rounded-full animate-pulse" />
+                AVAILABLE FOR NEW PROJECTS
+              </div>
 
-            <h1 className="text-4xl sm:text-6xl lg:text-7xl font-bold tracking-tight leading-tight">
-              {data.setting.heroHeadline}
-            </h1>
+              <h1 className="text-4xl sm:text-5xl lg:text-6xl font-extrabold tracking-tight leading-[1.14]">
+                Hi! I&apos;m{" "}
+                <span className="text-amber-400 drop-shadow-[0_0_30px_rgba(251,191,36,0.2)]">
+                  {data.setting.ownerName || "Azi Ramdani"}
+                </span>
+                ,
+                <br />
+                <span className="text-white">Crafting High-Impact Digital Experiences.</span>
+              </h1>
 
-            <div className="text-2xl sm:text-3xl font-semibold h-10">
-              <TypingText roles={data.setting.heroRoles} />
-            </div>
+              <div className="text-xl sm:text-2xl font-semibold h-9 flex items-center">
+                <TypingText
+                  roles={
+                    data.setting.heroRoles?.length
+                      ? data.setting.heroRoles
+                      : ["Full-Stack Vibe Coder", "UI/UX Specialist", "Persuasive Copywriter"]
+                  }
+                />
+              </div>
 
-            <p className="text-white/60 text-lg max-w-2xl mx-auto leading-relaxed">
-              {data.setting.heroSubheadline}
-            </p>
+              <p className="text-white/70 text-base sm:text-lg leading-relaxed max-w-xl">
+                {data.setting.heroSubheadline ||
+                  "Memadukan kepekaan estetika UI/UX kelas dunia, kecepatan eksekusi vibe coding (Apps Script & Web App), serta kekuatan seni copywriting yang berorientasi konversi."}
+              </p>
 
-            <div className="flex flex-col sm:flex-row gap-4 justify-center pt-4">
-              <button onClick={() => scrollToOrder()} className="btn-primary text-base px-8 py-4">
-                Start a Project →
-              </button>
-              <a href="#portfolio" className="btn-secondary text-base px-8 py-4">
-                View My Work
-              </a>
-            </div>
+              <div className="flex flex-col sm:flex-row gap-4 pt-2">
+                <a
+                  href="#services"
+                  className="btn-primary text-base px-7 py-3.5 text-center flex items-center justify-center gap-2"
+                >
+                  <span>Pilih Paket Jasa</span>
+                  <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M14 5l7 7m0 0l-7 7m7-7H3" />
+                  </svg>
+                </a>
+                <a
+                  href={`https://wa.me/${data.setting.whatsappNumber.replace(/\D/g, "")}?text=${encodeURIComponent(
+                    "Halo " + (data.setting.ownerName || "Azi Ramdani") + "! Saya ingin konsultasi proyek."
+                  )}`}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="btn-secondary text-base px-7 py-3.5 text-center flex items-center justify-center gap-2"
+                >
+                  <svg className="w-5 h-5 text-emerald-400" fill="currentColor" viewBox="0 0 24 24">
+                    <path d="M12.031 6.172c-3.181 0-5.767 2.586-5.768 5.766-.001 1.298.38 2.27 1.019 3.287l-.711 2.598 2.669-.699c.969.584 1.792.898 2.791.899 3.182 0 5.768-2.587 5.769-5.766.001-3.182-2.585-5.768-5.77-5.768zm3.36 8.246c-.14.394-.81.758-1.121.808-.312.05-.72.079-1.164-.066-.279-.092-.64-.22-1.12-.428-1.954-.848-3.235-2.825-3.332-2.956-.098-.131-.795-1.057-.795-2.016 0-.959.502-1.429.681-1.625.179-.196.39-.246.52-.246.13 0 .26.002.373.007.12.006.279-.046.438.334.16.381.545 1.332.593 1.431.049.098.081.213.016.344-.065.131-.098.213-.196.328-.098.114-.207.255-.296.343-.098.098-.201.206-.086.403.114.196.508.839 1.09 1.357.75.669 1.383.876 1.58.974.197.098.312.082.427-.049.115-.131.492-.573.623-.77.131-.197.262-.164.442-.098.18.066 1.144.54 1.341.639.197.098.328.148.377.23.049.082.049.475-.091.869z" />
+                  </svg>
+                  <span>Konsultasi WA</span>
+                </a>
+              </div>
 
-            <div className="flex flex-wrap gap-6 justify-center pt-8 text-sm text-white/50">
-              <span className="flex items-center gap-2">
-                <svg className="w-4 h-4 text-emerald-400" fill="currentColor" viewBox="0 0 20 20"><path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" /></svg>
-                100% Custom Code
-              </span>
-              <span className="flex items-center gap-2">
-                <svg className="w-4 h-4 text-emerald-400" fill="currentColor" viewBox="0 0 20 20"><path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" /></svg>
-                Mobile-First Design
-              </span>
-              <span className="flex items-center gap-2">
-                <svg className="w-4 h-4 text-emerald-400" fill="currentColor" viewBox="0 0 20 20"><path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" /></svg>
-                Free Post-Launch Support
-              </span>
-            </div>
-          </motion.div>
+              <div className="flex flex-wrap gap-5 pt-4 text-xs sm:text-sm text-white/50">
+                <span className="flex items-center gap-2">
+                  <svg className="w-4 h-4 text-emerald-400" fill="currentColor" viewBox="0 0 20 20">
+                    <path
+                      fillRule="evenodd"
+                      d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z"
+                      clipRule="evenodd"
+                    />
+                  </svg>
+                  100% Custom Code
+                </span>
+                <span className="flex items-center gap-2">
+                  <svg className="w-4 h-4 text-emerald-400" fill="currentColor" viewBox="0 0 20 20">
+                    <path
+                      fillRule="evenodd"
+                      d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z"
+                      clipRule="evenodd"
+                    />
+                  </svg>
+                  Mobile-First Design
+                </span>
+                <span className="flex items-center gap-2">
+                  <svg className="w-4 h-4 text-emerald-400" fill="currentColor" viewBox="0 0 20 20">
+                    <path
+                      fillRule="evenodd"
+                      d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z"
+                      clipRule="evenodd"
+                    />
+                  </svg>
+                  Free Post-Launch Support
+                </span>
+              </div>
+            </motion.div>
+
+            {/* Right Column (Photo & Floating Badges) */}
+            <motion.div
+              className="lg:col-span-5 relative flex justify-center pt-6 lg:pt-0"
+              initial={{ opacity: 0, scale: 0.9 }}
+              animate={{ opacity: 1, scale: 1 }}
+              transition={{ duration: 0.8, delay: 0.2 }}
+            >
+              {/* Ambient Glow */}
+              <div className="absolute -inset-4 bg-gradient-to-tr from-emerald-500/25 via-cyan-500/20 to-amber-500/15 rounded-3xl blur-2xl opacity-75" />
+
+              <div className="relative w-full max-w-[340px] sm:max-w-[380px] aspect-[4/5] rounded-3xl overflow-hidden border border-white/15 bg-gradient-to-b from-white/10 to-[#111827] shadow-2xl">
+                <Image
+                  src={
+                    data.setting.profilePhotoUrl ||
+                    "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=800&q=80"
+                  }
+                  alt={data.setting.ownerName || "Azi Ramdani"}
+                  fill
+                  className="object-cover object-top"
+                  priority
+                />
+                <div className="absolute inset-0 bg-gradient-to-t from-[#090d16] via-transparent to-transparent opacity-60" />
+              </div>
+
+              {/* Floating Badge 1: Vibe Coding */}
+              <motion.div
+                animate={{ y: [0, -8, 0] }}
+                transition={{ repeat: Infinity, duration: 4, ease: "easeInOut" }}
+                className="absolute -top-3 -left-2 sm:-left-6 z-20 px-4 py-2.5 rounded-2xl bg-[#111827]/90 backdrop-blur-md border border-white/20 shadow-2xl flex items-center gap-2.5 text-xs sm:text-sm font-semibold text-white hover:scale-105 transition-transform"
+              >
+                <span className="text-amber-400 text-base">⚡</span>
+                <span>Vibe Coding</span>
+              </motion.div>
+
+              {/* Floating Badge 2: UI/UX Specialist */}
+              <motion.div
+                animate={{ y: [0, 8, 0] }}
+                transition={{ repeat: Infinity, duration: 4.6, ease: "easeInOut", delay: 0.4 }}
+                className="absolute top-1/2 -right-3 sm:-right-8 z-20 px-4 py-2.5 rounded-2xl bg-[#111827]/90 backdrop-blur-md border border-white/20 shadow-2xl flex items-center gap-2.5 text-xs sm:text-sm font-semibold text-white hover:scale-105 transition-transform"
+              >
+                <span className="text-base">🎨</span>
+                <span>UI/UX Specialist</span>
+              </motion.div>
+
+              {/* Floating Badge 3: Copywriting */}
+              <motion.div
+                animate={{ y: [0, -6, 0] }}
+                transition={{ repeat: Infinity, duration: 5.2, ease: "easeInOut", delay: 0.8 }}
+                className="absolute -bottom-3 left-4 sm:left-6 z-20 px-4 py-2.5 rounded-2xl bg-[#111827]/90 backdrop-blur-md border border-white/20 shadow-2xl flex items-center gap-2.5 text-xs sm:text-sm font-semibold text-white hover:scale-105 transition-transform"
+              >
+                <span className="text-base">🔥</span>
+                <span>Copywriting</span>
+              </motion.div>
+            </motion.div>
+          </div>
+        </div>
+      </section>
+
+      {/* ── Section About ── */}
+      <section id="about" className="py-24 px-4 relative z-10 border-t border-white/5 bg-gradient-to-b from-transparent via-[#111827]/30 to-transparent">
+        <div className="max-w-6xl mx-auto">
+          <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 items-center">
+            {/* Left Column (Photo with Experience Badge) */}
+            <motion.div
+              className="lg:col-span-5 relative"
+              initial={{ opacity: 0, x: -30 }}
+              whileInView={{ opacity: 1, x: 0 }}
+              viewport={{ once: true }}
+              transition={{ duration: 0.8 }}
+            >
+              <div className="relative w-full max-w-[340px] sm:max-w-[380px] mx-auto aspect-[4/5] rounded-3xl overflow-hidden border border-white/10 bg-[#111827] shadow-2xl">
+                <Image
+                  src={
+                    data.setting.profilePhotoUrl ||
+                    "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=800&q=80"
+                  }
+                  alt={data.setting.ownerName || "Azi Ramdani"}
+                  fill
+                  className="object-cover object-top"
+                />
+                <div className="absolute inset-0 bg-gradient-to-t from-[#090d16] via-transparent to-transparent opacity-70" />
+
+                {/* Experience Badge Card */}
+                <div className="absolute bottom-4 left-4 right-4 p-4 rounded-2xl bg-[#0e1726]/90 border border-emerald-500/30 backdrop-blur-md shadow-lg flex items-center gap-4">
+                  <div className="text-3xl font-black text-amber-400 leading-none">
+                    {data.setting.experienceYears || 5}+
+                  </div>
+                  <div className="text-xs text-white/80 font-medium leading-snug">
+                    Tahun Berpengalaman di Desain &amp; Automasi Web
+                  </div>
+                </div>
+              </div>
+            </motion.div>
+
+            {/* Right Column (Bio & 4-Step Workflow) */}
+            <motion.div
+              className="lg:col-span-7 space-y-6"
+              initial={{ opacity: 0, x: 30 }}
+              whileInView={{ opacity: 1, x: 0 }}
+              viewport={{ once: true }}
+              transition={{ duration: 0.8 }}
+            >
+              <div className="inline-flex items-center gap-2 bg-amber-500/10 border border-amber-500/20 rounded-full px-3.5 py-1 text-xs font-semibold text-amber-400 uppercase tracking-widest">
+                Tentang Saya
+              </div>
+
+              <h2 className="text-3xl sm:text-4xl font-extrabold text-white">
+                {data.setting.ownerName || "Azi Ramdani"}
+              </h2>
+
+              <p className="text-base sm:text-lg font-semibold gradient-text">
+                Product Designer, Full-Stack Vibe Coder &amp; Persuasive Copywriter berbasis di Indonesia.
+              </p>
+
+              <p className="text-white/70 text-sm sm:text-base leading-relaxed">
+                {data.setting.aboutBio ||
+                  "Dengan pengalaman mendalam dalam ekosistem digital, saya memadukan kepekaan estetika UI/UX kelas dunia, kecepatan eksekusi vibe coding (Apps Script & Web App), serta kekuatan seni copywriting yang berorientasi konversi."}
+              </p>
+
+              <div className="pt-4 border-t border-white/10">
+                <h3 className="text-xs font-bold uppercase tracking-wider text-white/50 mb-4">
+                  BAGAIMANA SAYA BEKERJA (4-STEP WORKFLOW)
+                </h3>
+
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3.5">
+                  {[
+                    {
+                      step: "01",
+                      title: "Discovery & Strategy",
+                      desc: "Membedah audiens, merancang USP, dan menyusun penawaran utama.",
+                    },
+                    {
+                      step: "02",
+                      title: "Design & Wireframing",
+                      desc: "Rancangan visual interaktif berestetika tinggi dan navigasi intuitif.",
+                    },
+                    {
+                      step: "03",
+                      title: "Vibe Coding & Automation",
+                      desc: "Pengembangan sistem cepat (SPA + Database API + WhatsApp).",
+                    },
+                    {
+                      step: "04",
+                      title: "Review & Handover",
+                      desc: "Pengujian performa bebas error dan serah terima aset siap pakai.",
+                    },
+                  ].map((w) => (
+                    <div
+                      key={w.step}
+                      className="p-4 rounded-xl bg-white/5 border border-white/10 hover:border-white/20 transition-all hover:bg-white/8"
+                    >
+                      <div className="flex items-center gap-2 font-mono font-bold text-amber-400 text-sm mb-1">
+                        <span>{w.step}</span>
+                        <span className="text-white/30">/</span>
+                        <span className="text-white font-sans text-xs font-semibold">{w.title}</span>
+                      </div>
+                      <p className="text-xs text-white/60 leading-relaxed">{w.desc}</p>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            </motion.div>
+          </div>
         </div>
       </section>
 

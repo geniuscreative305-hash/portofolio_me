@@ -246,4 +246,12 @@ portofolio/
 
 ### Log Pembaruan
 - v1.0.0 (2026-11-22): Initial build — full scaffold per PRD spec
+- v1.1.0 (2026-11-23): Redesain UI/UX Pro-Max:
+  - Interactive HTML5 Canvas Particle Network Background (Emerald/Cyan neon dots & mesh lines, mouse reactive).
+  - 2-Column Hero layout with personal branding (Azi Ramdani, Vibe Coding, UI/UX Specialist, Copywriting).
+  - Profile photo card with 3 interactive floating badges (`⚡ Vibe Coding`, `🎨 UI/UX Specialist`, `🔥 Copywriting`).
+  - Section About (`#about`) with experience badge and 4-Step Workflow cards.
+  - Navbar updated with Home (`#home`) and About (`#about`) links.
+  - SiteSetting schema updated with `profilePhotoUrl`, `ownerName`, `aboutBio`, `experienceYears`.
+  - Admin Settings (`/admin/settings`) equipped with Vercel Blob profile photo uploader and live preview.
 

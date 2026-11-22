@@ -97,6 +97,10 @@ export interface ActivityLogItem {
 // ─── SiteSetting Types ────────────────────────────────────────────────────────
 export interface SiteSettingItem {
   id: string;
+  ownerName: string;
+  profilePhotoUrl: string | null;
+  aboutBio: string | null;
+  experienceYears: number;
   heroRoles: string[];
   heroHeadline: string;
   heroSubheadline: string;
