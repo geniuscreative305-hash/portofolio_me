@@ -274,6 +274,13 @@ portofolio/
   - Page Transition Animasi: Efek `.admin-page-enter` di semua halaman admin.
   - Kontainer Responsif: Max-w-7xl terpusat dan rapi di monitor lebar / ultrawide.
   - Dashboard Parallel Query: 1x Promise.all simultan memangkas latensi data.
+- v1.5.0 (2026-11-23): Navbar Sliding Gradient Pill, Responsive Hero 2-Col Mobile, 2-Col Services & Portfolio, Rute Arsip /portfolio:
+  - Navbar Sliding Gradient Active Pill: Indikator pil meluncur Framer Motion (`layoutId="activeNav"`) terintegrasi scroll spy.
+  - Hero Responsive 2-Col Mobile & Tablet: Foto profil dan headline sejajar 2 kolom (`grid-cols-12` 7:5 di mobile & tablet) above-the-fold, lencana mengambang diskalakan proporsional.
+  - 2-Column Mobile Grid: Layanan & Harga serta Portofolio tampil 2 kolom di mobile (`grid-cols-2`) dengan tipografi dan padding yang disesuaikan.
+  - Limitasi 4 Proyek Beranda + Tombol "Read More": Tampil maksimal 4 proyek di beranda dengan tombol CTA menuju `/portfolio`.
+  - Halaman Arsip Khusus `/portfolio`: Server Component dengan live search, filter kategori, dan pop-up modal studi kasus.
+
 
 
 

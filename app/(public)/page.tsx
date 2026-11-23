@@ -6,7 +6,7 @@ export const dynamic = "force-dynamic";
 export const revalidate = 0;
 
 export default async function HomePage() {
-  const [rawSetting, rawServices, rawPortfolio, rawTestimonials] = await Promise.all([
+  const [rawSetting, rawServices, rawPortfolio, rawTestimonials, totalPortfolioCount] = await Promise.all([
     prisma.siteSetting.findUnique({
       where: { id: "global" },
       select: {
@@ -35,10 +35,14 @@ export default async function HomePage() {
         },
       },
       orderBy: [{ isFeatured: "desc" }, { createdAt: "desc" }],
+      take: 4,
     }),
     prisma.testimonial.findMany({
       where: { isApproved: true },
       orderBy: { createdAt: "desc" },
+    }),
+    prisma.portfolio.count({
+      where: { status: "PUBLISHED" },
     }),
   ]);
 
@@ -88,6 +92,7 @@ export default async function HomePage() {
       services={services}
       initialPortfolio={portfolio}
       testimonials={testimonials}
+      totalPortfolioCount={totalPortfolioCount}
     />
   );
 }

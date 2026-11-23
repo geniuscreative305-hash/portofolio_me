@@ -3,6 +3,7 @@
 import { useState, useEffect, useRef, useCallback, useMemo, MouseEvent } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import Image from "next/image";
+import Link from "next/link";
 import ParticleCanvas from "@/components/public/ParticleCanvas";
 import type {
   ServiceItem,
@@ -480,21 +481,54 @@ function OrderSection({
 // ─── Main Interactive Client View ─────────────────────────────────────────────
 type FilterCategory = "ALL" | "VIBE_CODING" | "DESIGN" | "COPYWRITING";
 
+// ─── Main Navigation Items ──────────────────────────────────────────────────
+const NAV_ITEMS = [
+  { id: "home", label: "Home", href: "#home" },
+  { id: "about", label: "About", href: "#about" },
+  { id: "services", label: "Services", href: "#services" },
+  { id: "portfolio", label: "Portfolio", href: "#portfolio" },
+  { id: "testimonials", label: "Reviews", href: "#testimonials" },
+];
+
 export default function PortfolioClientView({
   setting,
   services,
   initialPortfolio,
   testimonials,
+  totalPortfolioCount,
 }: {
   setting: SiteSettingItem;
   services: ServiceItem[];
   initialPortfolio: PortfolioItem[];
   testimonials: TestimonialItem[];
+  totalPortfolioCount?: number;
 }) {
   const [selectedPortfolio, setSelectedPortfolio] = useState<PortfolioItem | null>(null);
   const [preselectedServiceId, setPreselectedServiceId] = useState<string | undefined>();
   const [activeCategory, setActiveCategory] = useState<FilterCategory>("ALL");
+  const [activeNav, setActiveNav] = useState("home");
   const orderFormRef = useRef<HTMLElement | null>(null);
+
+  // Scroll Spy for Navbar Active Pill
+  useEffect(() => {
+    const observer = new IntersectionObserver(
+      (entries) => {
+        entries.forEach((entry) => {
+          if (entry.isIntersecting) {
+            setActiveNav(entry.target.id);
+          }
+        });
+      },
+      { rootMargin: "-30% 0px -55% 0px" }
+    );
+
+    NAV_ITEMS.forEach((item) => {
+      const el = document.getElementById(item.id);
+      if (el) observer.observe(el);
+    });
+
+    return () => observer.disconnect();
+  }, []);
 
   const scrollToOrder = useCallback((serviceId?: string) => {
     setPreselectedServiceId(serviceId);
@@ -534,28 +568,40 @@ export default function PortfolioClientView({
       {/* ── Interactive Particle Canvas ── */}
       <ParticleCanvas />
 
-      {/* ── Navbar ── */}
+      {/* ── Navbar with Sliding Gradient Active Pill ── */}
       <nav className="fixed top-0 inset-x-0 z-40 bg-[#090d16]/85 backdrop-blur-md border-b border-white/5">
         <div className="max-w-6xl mx-auto px-4 h-16 flex items-center justify-between">
           <a href="#home" className="text-lg font-bold gradient-text">
             Portfolio.
           </a>
-          <div className="hidden sm:flex items-center gap-6 text-sm text-white/70">
-            <a href="#home" className="hover:text-white transition-colors">
-              Home
-            </a>
-            <a href="#about" className="hover:text-white transition-colors">
-              About
-            </a>
-            <a href="#services" className="hover:text-white transition-colors">
-              Services
-            </a>
-            <a href="#portfolio" className="hover:text-white transition-colors">
-              Portfolio
-            </a>
-            <a href="#testimonials" className="hover:text-white transition-colors">
-              Reviews
-            </a>
+
+          {/* Desktop Navigation with Sliding Pill Indicator */}
+          <div className="hidden sm:flex items-center gap-1 bg-white/[0.04] border border-white/10 p-1 rounded-full backdrop-blur-md shadow-inner">
+            {NAV_ITEMS.map((item) => {
+              const isActive = activeNav === item.id;
+              return (
+                <a
+                  key={item.id}
+                  href={item.href}
+                  onClick={() => setActiveNav(item.id)}
+                  className={`relative px-4 py-1.5 rounded-full text-xs md:text-sm font-medium transition-colors duration-200 select-none ${
+                    isActive ? "text-white font-semibold" : "text-white/60 hover:text-white"
+                  }`}
+                >
+                  {isActive && (
+                    <motion.span
+                      layoutId="activeNav"
+                      className="absolute inset-0 rounded-full bg-gradient-to-r from-emerald-500/25 via-cyan-500/20 to-emerald-500/25 border border-emerald-400/40 shadow-[0_0_15px_rgba(52,211,153,0.25)]"
+                      transition={{ type: "spring", stiffness: 380, damping: 30 }}
+                    />
+                  )}
+                  <span className="relative z-10">{item.label}</span>
+                </a>
+              );
+            })}
+          </div>
+
+          <div className="hidden sm:flex items-center gap-3">
             <a
               href="/track"
               className="flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-emerald-500/10 border border-emerald-500/25 hover:bg-emerald-500/20 text-emerald-400 hover:text-emerald-300 transition-all text-xs font-semibold"
@@ -569,6 +615,8 @@ export default function PortfolioClientView({
               Hire Me
             </button>
           </div>
+
+          {/* Mobile Navigation */}
           <div className="flex sm:hidden items-center gap-2">
             <a href="#about" className="text-xs text-white/70 py-1.5 px-2">
               About
@@ -586,23 +634,23 @@ export default function PortfolioClientView({
         </div>
       </nav>
 
-      {/* ── Hero (Home) ── */}
-      <section id="home" className="pt-32 pb-20 px-4 min-h-screen flex items-center relative z-10">
+      {/* ── Hero (Home) ── 2-Column Responsive on Mobile & Tablet */}
+      <section id="home" className="pt-28 sm:pt-32 pb-16 sm:pb-20 px-4 min-h-screen flex items-center relative z-10">
         <div className="max-w-6xl mx-auto w-full">
-          <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 lg:gap-8 items-center">
-            {/* Left Column (Content) */}
+          <div className="grid grid-cols-12 gap-3 sm:gap-8 lg:gap-10 items-center">
+            {/* Left Column (Headline + Typing Text) */}
             <motion.div
-              className="lg:col-span-7 space-y-6 text-left"
+              className="col-span-7 sm:col-span-7 lg:col-span-7 space-y-3 sm:space-y-6 text-left"
               initial={{ opacity: 0, x: -30 }}
               animate={{ opacity: 1, x: 0 }}
               transition={{ duration: 0.8 }}
             >
-              <div className="inline-flex items-center gap-2 bg-amber-500/10 border border-amber-500/25 rounded-full px-4 py-1.5 text-xs sm:text-sm font-medium text-amber-400 shadow-sm">
-                <span className="w-2 h-2 bg-amber-400 rounded-full animate-pulse" />
-                AVAILABLE FOR NEW PROJECTS
+              <div className="inline-flex items-center gap-1.5 sm:gap-2 bg-amber-500/10 border border-amber-500/25 rounded-full px-2.5 sm:px-4 py-1 sm:py-1.5 text-[10px] sm:text-sm font-medium text-amber-400 shadow-sm">
+                <span className="w-1.5 sm:w-2 h-1.5 sm:h-2 bg-amber-400 rounded-full animate-pulse" />
+                <span className="truncate">AVAILABLE FOR NEW PROJECTS</span>
               </div>
 
-              <h1 className="text-4xl sm:text-5xl lg:text-6xl font-extrabold tracking-tight leading-[1.14]">
+              <h1 className="text-xl sm:text-4xl md:text-5xl lg:text-6xl font-extrabold tracking-tight leading-[1.12]">
                 Hi! I&apos;m{" "}
                 <span className="text-amber-400 drop-shadow-[0_0_30px_rgba(251,191,36,0.2)]">
                   {setting.ownerName || "Azi Ramdani"}
@@ -612,7 +660,7 @@ export default function PortfolioClientView({
                 <span className="text-white">Crafting High-Impact Digital Experiences.</span>
               </h1>
 
-              <div className="text-xl sm:text-2xl font-semibold h-9 flex items-center">
+              <div className="text-sm sm:text-xl lg:text-2xl font-semibold h-7 sm:h-9 flex items-center">
                 <TypingText
                   roles={
                     setting.heroRoles?.length
@@ -622,80 +670,71 @@ export default function PortfolioClientView({
                 />
               </div>
 
-              <p className="text-white/70 text-base sm:text-lg leading-relaxed max-w-xl">
-                {setting.heroSubheadline ||
-                  "Memadukan kepekaan estetika UI/UX kelas dunia, kecepatan eksekusi vibe coding (Apps Script & Web App), serta kekuatan seni copywriting yang berorientasi konversi."}
-              </p>
+              {/* Subheadline & CTA buttons (Visible inside left column on Tablet/Desktop) */}
+              <div className="hidden sm:block space-y-6">
+                <p className="text-white/70 text-base sm:text-lg leading-relaxed max-w-xl">
+                  {setting.heroSubheadline ||
+                    "Memadukan kepekaan estetika UI/UX kelas dunia, kecepatan eksekusi vibe coding (Apps Script & Web App), serta kekuatan seni copywriting yang berorientasi konversi."}
+                </p>
 
-              <div className="flex flex-col sm:flex-row gap-4 pt-2">
-                <a
-                  href="#services"
-                  className="btn-primary text-base px-7 py-3.5 text-center flex items-center justify-center gap-2"
-                >
-                  <span>Pilih Paket Jasa</span>
-                  <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M14 5l7 7m0 0l-7 7m7-7H3" />
-                  </svg>
-                </a>
-                <a
-                  href={`https://wa.me/${setting.whatsappNumber.replace(/\D/g, "")}?text=${encodeURIComponent(
-                    "Halo " + (setting.ownerName || "Azi Ramdani") + "! Saya ingin konsultasi proyek."
-                  )}`}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="btn-secondary text-base px-7 py-3.5 text-center flex items-center justify-center gap-2"
-                >
-                  <svg className="w-5 h-5 text-emerald-400" fill="currentColor" viewBox="0 0 24 24">
-                    <path d="M12.031 6.172c-3.181 0-5.767 2.586-5.768 5.766-.001 1.298.38 2.27 1.019 3.287l-.711 2.598 2.669-.699c.969.584 1.792.898 2.791.899 3.182 0 5.768-2.587 5.769-5.766.001-3.182-2.585-5.768-5.77-5.768zm3.36 8.246c-.14.394-.81.758-1.121.808-.312.05-.72.079-1.164-.066-.279-.092-.64-.22-1.12-.428-1.954-.848-3.235-2.825-3.332-2.956-.098-.131-.795-1.057-.795-2.016 0-.959.502-1.429.681-1.625.179-.196.39-.246.52-.246.13 0 .26.002.373.007.12.006.279-.046.438.334.16.381.545 1.332.593 1.431.049.098.081.213.016.344-.065.131-.098.213-.196.328-.098.114-.207.255-.296.343-.098.098-.201.206-.086.403.114.196.508.839 1.09 1.357.75.669 1.383.876 1.58.974.197.098.312.082.427-.049.115-.131.492-.573.623-.77.131-.197.262-.164.442-.098.18.066 1.144.54 1.341.639.197.098.328.148.377.23.049.082.049.475-.091.869z" />
-                  </svg>
-                  <span>Konsultasi WA</span>
-                </a>
-              </div>
+                <div className="flex flex-col sm:flex-row gap-4 pt-2">
+                  <a
+                    href="#services"
+                    className="btn-primary text-base px-7 py-3.5 text-center flex items-center justify-center gap-2"
+                  >
+                    <span>Pilih Paket Jasa</span>
+                    <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M14 5l7 7m0 0l-7 7m7-7H3" />
+                    </svg>
+                  </a>
+                  <a
+                    href={`https://wa.me/${setting.whatsappNumber.replace(/\D/g, "")}?text=${encodeURIComponent(
+                      "Halo " + (setting.ownerName || "Azi Ramdani") + "! Saya ingin konsultasi proyek."
+                    )}`}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="btn-secondary text-base px-7 py-3.5 text-center flex items-center justify-center gap-2"
+                  >
+                    <svg className="w-5 h-5 text-emerald-400" fill="currentColor" viewBox="0 0 24 24">
+                      <path d="M12.031 6.172c-3.181 0-5.767 2.586-5.768 5.766-.001 1.298.38 2.27 1.019 3.287l-.711 2.598 2.669-.699c.969.584 1.792.898 2.791.899 3.182 0 5.768-2.587 5.769-5.766.001-3.182-2.585-5.768-5.77-5.768zm3.36 8.246c-.14.394-.81.758-1.121.808-.312.05-.72.079-1.164-.066-.279-.092-.64-.22-1.12-.428-1.954-.848-3.235-2.825-3.332-2.956-.098-.131-.795-1.057-.795-2.016 0-.959.502-1.429.681-1.625.179-.196.39-.246.52-.246.13 0 .26.002.373.007.12.006.279-.046.438.334.16.381.545 1.332.593 1.431.049.098.081.213.016.344-.065.131-.098.213-.196.328-.098.114-.207.255-.296.343-.098.098-.201.206-.086.403.114.196.508.839 1.09 1.357.75.669 1.383.876 1.58.974.197.098.312.082.427-.049.115-.131.492-.573.623-.77.131-.197.262-.164.442-.098.18.066 1.144.54 1.341.639.197.098.328.148.377.23.049.082.049.475-.091.869z" />
+                    </svg>
+                    <span>Konsultasi WA</span>
+                  </a>
+                </div>
 
-              <div className="flex flex-wrap gap-5 pt-4 text-xs sm:text-sm text-white/50">
-                <span className="flex items-center gap-2">
-                  <svg className="w-4 h-4 text-emerald-400" fill="currentColor" viewBox="0 0 20 20">
-                    <path
-                      fillRule="evenodd"
-                      d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z"
-                      clipRule="evenodd"
-                    />
-                  </svg>
-                  100% Custom Code
-                </span>
-                <span className="flex items-center gap-2">
-                  <svg className="w-4 h-4 text-emerald-400" fill="currentColor" viewBox="0 0 20 20">
-                    <path
-                      fillRule="evenodd"
-                      d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z"
-                      clipRule="evenodd"
-                    />
-                  </svg>
-                  Mobile-First Design
-                </span>
-                <span className="flex items-center gap-2">
-                  <svg className="w-4 h-4 text-emerald-400" fill="currentColor" viewBox="0 0 20 20">
-                    <path
-                      fillRule="evenodd"
-                      d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z"
-                      clipRule="evenodd"
-                    />
-                  </svg>
-                  Free Post-Launch Support
-                </span>
+                <div className="flex flex-wrap gap-5 pt-4 text-xs sm:text-sm text-white/50">
+                  <span className="flex items-center gap-2">
+                    <svg className="w-4 h-4 text-emerald-400" fill="currentColor" viewBox="0 0 20 20">
+                      <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
+                    </svg>
+                    100% Custom Code
+                  </span>
+                  <span className="flex items-center gap-2">
+                    <svg className="w-4 h-4 text-emerald-400" fill="currentColor" viewBox="0 0 20 20">
+                      <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
+                    </svg>
+                    Mobile-First Design
+                  </span>
+                  <span className="flex items-center gap-2">
+                    <svg className="w-4 h-4 text-emerald-400" fill="currentColor" viewBox="0 0 20 20">
+                      <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
+                    </svg>
+                    Free Support
+                  </span>
+                </div>
               </div>
             </motion.div>
 
-            {/* Right Column (Photo & Floating Badges) */}
+            {/* Right Column (Photo & Proportionally Scaled Floating Badges) */}
             <motion.div
-              className="lg:col-span-5 relative flex justify-center pt-6 lg:pt-0"
+              className="col-span-5 sm:col-span-5 lg:col-span-5 relative flex justify-center pt-2 sm:pt-0"
               initial={{ opacity: 0, scale: 0.9 }}
               animate={{ opacity: 1, scale: 1 }}
               transition={{ duration: 0.8, delay: 0.2 }}
             >
-              <div className="absolute -inset-4 bg-gradient-to-tr from-emerald-500/25 via-cyan-500/20 to-amber-500/15 rounded-3xl blur-2xl opacity-75" />
+              <div className="absolute -inset-2 sm:-inset-4 bg-gradient-to-tr from-emerald-500/25 via-cyan-500/20 to-amber-500/15 rounded-2xl sm:rounded-3xl blur-xl sm:blur-2xl opacity-75" />
 
-              <div className="relative w-full max-w-[340px] sm:max-w-[380px] aspect-[4/5] rounded-3xl overflow-hidden border border-white/15 bg-gradient-to-b from-white/10 to-[#111827] shadow-2xl">
+              <div className="relative w-full max-w-[150px] sm:max-w-[340px] md:max-w-[380px] aspect-[4/5] rounded-2xl sm:rounded-3xl overflow-hidden border border-white/15 bg-gradient-to-b from-white/10 to-[#111827] shadow-2xl">
                 <Image
                   src={
                     setting.profilePhotoUrl ||
@@ -711,34 +750,82 @@ export default function PortfolioClientView({
 
               {/* Floating Badge 1: Vibe Coding */}
               <motion.div
-                animate={{ y: [0, -8, 0] }}
+                animate={{ y: [0, -6, 0] }}
                 transition={{ repeat: Infinity, duration: 4, ease: "easeInOut" }}
-                className="absolute -top-3 -left-2 sm:-left-6 z-20 px-4 py-2.5 rounded-2xl bg-[#111827]/90 backdrop-blur-md border border-white/20 shadow-2xl flex items-center gap-2.5 text-xs sm:text-sm font-semibold text-white hover:scale-105 transition-transform"
+                className="absolute -top-2 -left-3 sm:-top-3 sm:-left-6 z-20 px-2 sm:px-4 py-1 sm:py-2.5 rounded-xl sm:rounded-2xl bg-[#111827]/90 backdrop-blur-md border border-white/20 shadow-xl flex items-center gap-1.5 sm:gap-2.5 text-[10px] sm:text-sm font-semibold text-white scale-75 sm:scale-100 origin-bottom-right"
               >
-                <span className="text-amber-400 text-base">⚡</span>
-                <span>Vibe Coding</span>
+                <span className="text-amber-400 text-xs sm:text-base">⚡</span>
+                <span className="whitespace-nowrap">Vibe Coding</span>
               </motion.div>
 
               {/* Floating Badge 2: UI/UX Specialist */}
               <motion.div
-                animate={{ y: [0, 8, 0] }}
+                animate={{ y: [0, 6, 0] }}
                 transition={{ repeat: Infinity, duration: 4.6, ease: "easeInOut", delay: 0.4 }}
-                className="absolute top-1/2 -right-3 sm:-right-8 z-20 px-4 py-2.5 rounded-2xl bg-[#111827]/90 backdrop-blur-md border border-white/20 shadow-2xl flex items-center gap-2.5 text-xs sm:text-sm font-semibold text-white hover:scale-105 transition-transform"
+                className="absolute top-1/2 -right-3 sm:-right-8 z-20 px-2 sm:px-4 py-1 sm:py-2.5 rounded-xl sm:rounded-2xl bg-[#111827]/90 backdrop-blur-md border border-white/20 shadow-xl flex items-center gap-1.5 sm:gap-2.5 text-[10px] sm:text-sm font-semibold text-white scale-75 sm:scale-100 origin-center"
               >
-                <span className="text-base">🎨</span>
-                <span>UI/UX Specialist</span>
+                <span className="text-xs sm:text-base">🎨</span>
+                <span className="whitespace-nowrap">UI/UX</span>
               </motion.div>
 
               {/* Floating Badge 3: Copywriting */}
               <motion.div
-                animate={{ y: [0, -6, 0] }}
+                animate={{ y: [0, -5, 0] }}
                 transition={{ repeat: Infinity, duration: 5.2, ease: "easeInOut", delay: 0.8 }}
-                className="absolute -bottom-3 left-4 sm:left-6 z-20 px-4 py-2.5 rounded-2xl bg-[#111827]/90 backdrop-blur-md border border-white/20 shadow-2xl flex items-center gap-2.5 text-xs sm:text-sm font-semibold text-white hover:scale-105 transition-transform"
+                className="absolute -bottom-2 left-2 sm:-bottom-3 sm:left-6 z-20 px-2 sm:px-4 py-1 sm:py-2.5 rounded-xl sm:rounded-2xl bg-[#111827]/90 backdrop-blur-md border border-white/20 shadow-xl flex items-center gap-1.5 sm:gap-2.5 text-[10px] sm:text-sm font-semibold text-white scale-75 sm:scale-100 origin-top-left"
               >
-                <span className="text-base">🔥</span>
-                <span>Copywriting</span>
+                <span className="text-xs sm:text-base">🔥</span>
+                <span className="whitespace-nowrap">Copywriting</span>
               </motion.div>
             </motion.div>
+
+            {/* Mobile Subheadline & CTAs (Shown full width below photo & headline on mobile) */}
+            <div className="col-span-12 block sm:hidden space-y-4 pt-2">
+              <p className="text-white/70 text-sm leading-relaxed">
+                {setting.heroSubheadline ||
+                  "Memadukan kepekaan estetika UI/UX kelas dunia, kecepatan eksekusi vibe coding (Apps Script & Web App), serta kekuatan seni copywriting yang berorientasi konversi."}
+              </p>
+
+              <div className="flex flex-col gap-2.5">
+                <a
+                  href="#services"
+                  className="btn-primary text-sm py-2.5 text-center flex items-center justify-center gap-2"
+                >
+                  <span>Pilih Paket Jasa</span>
+                  <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M14 5l7 7m0 0l-7 7m7-7H3" />
+                  </svg>
+                </a>
+                <a
+                  href={`https://wa.me/${setting.whatsappNumber.replace(/\D/g, "")}?text=${encodeURIComponent(
+                    "Halo " + (setting.ownerName || "Azi Ramdani") + "! Saya ingin konsultasi proyek."
+                  )}`}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="btn-secondary text-sm py-2.5 text-center flex items-center justify-center gap-2"
+                >
+                  <svg className="w-4 h-4 text-emerald-400" fill="currentColor" viewBox="0 0 24 24">
+                    <path d="M12.031 6.172c-3.181 0-5.767 2.586-5.768 5.766-.001 1.298.38 2.27 1.019 3.287l-.711 2.598 2.669-.699c.969.584 1.792.898 2.791.899 3.182 0 5.768-2.587 5.769-5.766.001-3.182-2.585-5.768-5.77-5.768zm3.36 8.246c-.14.394-.81.758-1.121.808-.312.05-.72.079-1.164-.066-.279-.092-.64-.22-1.12-.428-1.954-.848-3.235-2.825-3.332-2.956-.098-.131-.795-1.057-.795-2.016 0-.959.502-1.429.681-1.625.179-.196.39-.246.52-.246.13 0 .26.002.373.007.12.006.279-.046.438.334.16.381.545 1.332.593 1.431.049.098.081.213.016.344-.065.131-.098.213-.196.328-.098.114-.207.255-.296.343-.098.098-.201.206-.086.403.114.196.508.839 1.09 1.357.75.669 1.383.876 1.58.974.197.098.328.148.377.23.049.082.049.475-.091.869z" />
+                  </svg>
+                  <span>Konsultasi WA</span>
+                </a>
+              </div>
+
+              <div className="flex flex-wrap gap-3 pt-2 text-[11px] text-white/50">
+                <span className="flex items-center gap-1.5">
+                  <svg className="w-3.5 h-3.5 text-emerald-400" fill="currentColor" viewBox="0 0 20 20">
+                    <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
+                  </svg>
+                  100% Custom Code
+                </span>
+                <span className="flex items-center gap-1.5">
+                  <svg className="w-3.5 h-3.5 text-emerald-400" fill="currentColor" viewBox="0 0 20 20">
+                    <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
+                  </svg>
+                  Mobile-First Design
+                </span>
+              </div>
+            </div>
           </div>
         </div>
       </section>
@@ -867,7 +954,7 @@ export default function PortfolioClientView({
             <p className="section-subtitle">Transparent pricing, premium quality. No hidden fees.</p>
           </motion.div>
 
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+          <div className="grid grid-cols-2 gap-3 sm:gap-6 lg:grid-cols-4">
             {services.map((service, i) => (
               <motion.div
                 key={service.id}
@@ -876,40 +963,40 @@ export default function PortfolioClientView({
                 viewport={{ once: true }}
                 transition={{ delay: i * 0.1 }}
               >
-                <SpotlightCard className="glass-card-hover p-6 h-full flex flex-col cursor-pointer">
-                  <div className="mb-4">
-                    <span className="text-xs font-semibold text-cyan-400 uppercase tracking-widest">
+                <SpotlightCard className="glass-card-hover p-3.5 sm:p-6 h-full flex flex-col cursor-pointer">
+                  <div className="mb-2 sm:mb-4">
+                    <span className="text-[10px] sm:text-xs font-semibold text-cyan-400 uppercase tracking-widest">
                       {service.category}
                     </span>
-                    <h3 className="text-lg font-bold mt-1">{service.title}</h3>
-                    <p className="text-white/60 text-sm mt-2 leading-relaxed">{service.shortDesc}</p>
+                    <h3 className="text-sm sm:text-lg font-bold mt-0.5 sm:mt-1 line-clamp-1 sm:line-clamp-none">{service.title}</h3>
+                    <p className="text-white/60 text-xs sm:text-sm mt-1 sm:mt-2 leading-relaxed line-clamp-2">{service.shortDesc}</p>
                   </div>
 
-                  <ul className="space-y-2 flex-1 mb-6">
-                    {service.features.map((f) => (
-                      <li key={f} className="flex items-start gap-2 text-sm text-white/70">
-                        <svg className="w-4 h-4 text-emerald-400 flex-shrink-0 mt-0.5" fill="currentColor" viewBox="0 0 20 20">
+                  <ul className="space-y-1.5 sm:space-y-2 flex-1 mb-3 sm:mb-6">
+                    {service.features.slice(0, 3).map((f) => (
+                      <li key={f} className="flex items-start gap-1.5 sm:gap-2 text-[11px] sm:text-sm text-white/70">
+                        <svg className="w-3.5 h-3.5 text-emerald-400 flex-shrink-0 mt-0.5" fill="currentColor" viewBox="0 0 20 20">
                           <path
                             fillRule="evenodd"
                             d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z"
                             clipRule="evenodd"
                           />
                         </svg>
-                        {f}
+                        <span className="line-clamp-1">{f}</span>
                       </li>
                     ))}
                   </ul>
 
-                  <div className="mt-auto">
-                    <p className="text-xs text-white/40 mb-1">Starting from</p>
-                    <p className="text-xl font-bold gradient-text">
+                  <div className="mt-auto pt-2 border-t border-white/5 sm:border-0">
+                    <p className="text-[10px] sm:text-xs text-white/40 mb-0.5">Starting from</p>
+                    <p className="text-xs sm:text-xl font-bold gradient-text">
                       Rp {service.priceStart.toLocaleString("id-ID")}
                     </p>
                     <button
                       onClick={() => scrollToOrder(service.id)}
-                      className="btn-primary w-full mt-4 py-2 text-sm"
+                      className="btn-primary w-full mt-2 sm:mt-4 py-1.5 sm:py-2 text-xs sm:text-sm font-semibold rounded-lg sm:rounded-xl"
                     >
-                      Pesan Sekarang
+                      Pesan
                     </button>
                   </div>
                 </SpotlightCard>
@@ -957,8 +1044,8 @@ export default function PortfolioClientView({
             })}
           </div>
 
-          {/* Portfolio Grid with Framer Motion Layout */}
-          <motion.div layout className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+          {/* Portfolio Grid with Framer Motion Layout ── 2-Column on Mobile */}
+          <motion.div layout className="grid grid-cols-2 gap-3 sm:gap-6 lg:grid-cols-3">
             <AnimatePresence>
               {filteredPortfolio.map((item) => (
                 <motion.div
@@ -971,7 +1058,7 @@ export default function PortfolioClientView({
                 >
                   <SpotlightCard className="glass-card-hover overflow-hidden cursor-pointer group h-full flex flex-col">
                     <div
-                      className="relative h-48 overflow-hidden"
+                      className="relative h-28 sm:h-48 overflow-hidden"
                       onClick={() => setSelectedPortfolio(item)}
                     >
                       {item.thumbnailUrl ? (
@@ -983,45 +1070,45 @@ export default function PortfolioClientView({
                         />
                       ) : (
                         <div className="w-full h-full bg-gradient-to-br from-[#111827] to-[#1f2d45] flex items-center justify-center">
-                          <svg className="w-10 h-10 text-white/20" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                          <svg className="w-8 sm:w-10 h-8 sm:h-10 text-white/20" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1} d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
                           </svg>
                         </div>
                       )}
                       <div className="absolute inset-0 bg-gradient-to-t from-[#090d16] via-transparent to-transparent" />
                       {item.isFeatured && (
-                        <div className="absolute top-3 right-3 bg-amber-500/20 border border-amber-500/30 text-amber-400 text-xs font-semibold px-2 py-1 rounded-full">
+                        <div className="absolute top-2 right-2 sm:top-3 sm:right-3 bg-amber-500/20 border border-amber-500/30 text-amber-400 text-[10px] sm:text-xs font-semibold px-2 py-0.5 sm:py-1 rounded-full">
                           Featured
                         </div>
                       )}
                     </div>
 
-                    <div className="p-5 flex-1 flex flex-col" onClick={() => setSelectedPortfolio(item)}>
-                      <span className="text-xs font-semibold text-cyan-400 uppercase tracking-widest">
+                    <div className="p-3 sm:p-5 flex-1 flex flex-col" onClick={() => setSelectedPortfolio(item)}>
+                      <span className="text-[10px] sm:text-xs font-semibold text-cyan-400 uppercase tracking-widest">
                         {item.category}
                       </span>
-                      <h3 className="text-base font-bold mt-1 mb-2">{item.title}</h3>
-                      <p className="text-white/60 text-sm flex-1 leading-relaxed">{item.shortDesc}</p>
+                      <h3 className="text-xs sm:text-base font-bold mt-0.5 sm:mt-1 mb-1 line-clamp-1 sm:line-clamp-2">{item.title}</h3>
+                      <p className="text-white/60 text-[11px] sm:text-sm flex-1 leading-relaxed line-clamp-2">{item.shortDesc}</p>
 
-                      <div className="flex flex-wrap gap-1.5 mt-4">
-                        {item.techStack.slice(0, 3).map((tech) => (
+                      <div className="flex flex-wrap gap-1 mt-2 sm:mt-4">
+                        {item.techStack.slice(0, 2).map((tech) => (
                           <span
                             key={tech}
-                            className="text-xs bg-white/5 border border-white/10 rounded px-2 py-0.5 text-white/60"
+                            className="text-[9px] sm:text-xs bg-white/5 border border-white/10 rounded px-1.5 py-0.5 text-white/60"
                           >
                             {tech}
                           </span>
                         ))}
-                        {item.techStack.length > 3 && (
-                          <span className="text-xs text-white/40">+{item.techStack.length - 3} more</span>
+                        {item.techStack.length > 2 && (
+                          <span className="text-[9px] sm:text-xs text-white/40">+{item.techStack.length - 2}</span>
                         )}
                       </div>
                     </div>
 
-                    <div className="px-5 pb-4 flex gap-2">
+                    <div className="px-3 sm:px-5 pb-3 sm:pb-4 flex gap-2">
                       <button
                         onClick={() => setSelectedPortfolio(item)}
-                        className="flex-1 text-sm text-emerald-400 hover:text-emerald-300 font-medium transition-colors text-left"
+                        className="flex-1 text-xs sm:text-sm text-emerald-400 hover:text-emerald-300 font-medium transition-colors text-left"
                       >
                         View Case Study →
                       </button>
@@ -1037,6 +1124,22 @@ export default function PortfolioClientView({
               Belum ada proyek untuk kategori ini.
             </div>
           )}
+
+          {/* Read More / View All Projects CTA */}
+          <div className="mt-12 text-center">
+            <Link
+              href="/portfolio"
+              className="inline-flex items-center gap-2.5 px-8 py-3.5 rounded-full bg-gradient-to-r from-emerald-500/15 via-cyan-500/15 to-emerald-500/15 hover:from-emerald-500/25 hover:to-cyan-500/25 border border-emerald-400/30 hover:border-emerald-400/60 text-emerald-300 hover:text-white font-semibold text-sm transition-all duration-300 shadow-lg shadow-emerald-500/10 hover:shadow-emerald-500/25 hover:scale-105 group"
+            >
+              <span>Read More / Lihat Semua Karya</span>
+              <span className="text-white/40 group-hover:text-white font-normal">
+                ({totalPortfolioCount ?? "Semua"})
+              </span>
+              <svg className="w-4 h-4 text-emerald-400 group-hover:translate-x-1 transition-transform" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M14 5l7 7m0 0l-7 7m7-7H3" />
+              </svg>
+            </Link>
+          </div>
         </div>
       </section>
 
