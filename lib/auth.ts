@@ -1,5 +1,7 @@
 import { SignJWT, jwtVerify } from "jose";
 import { cookies } from "next/headers";
+import { NextRequest, NextResponse } from "next/server";
+import type { ApiResponse } from "@/types";
 
 const COOKIE_NAME = "admin_session";
 const JWT_SECRET = new TextEncoder().encode(
@@ -9,6 +11,31 @@ const JWT_SECRET = new TextEncoder().encode(
 export interface AdminPayload {
   role: "admin";
   iat: number;
+}
+
+/**
+ * Server-side guard to strictly enforce admin authorization in API routes.
+ * Returns null if authorized, or a 401 NextResponse if unauthorized.
+ */
+export async function requireAdmin(req?: NextRequest): Promise<NextResponse | null> {
+  let session = await verifyAdminSession();
+
+  if (!session && req) {
+    const cookieHeader = req.headers.get("cookie") ?? "";
+    const token = getTokenFromCookieHeader(cookieHeader);
+    if (token) {
+      session = await verifyToken(token);
+    }
+  }
+
+  if (!session || session.role !== "admin") {
+    return NextResponse.json<ApiResponse>(
+      { success: false, error: "Unauthorized: Admin session required" },
+      { status: 401 }
+    );
+  }
+
+  return null;
 }
 
 /**

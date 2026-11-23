@@ -69,10 +69,16 @@ export interface OrderItem {
   updatedAt: string;
 }
 
-// Public tracker — no WhatsApp exposed
-export type TrackerOrderItem = Omit<OrderItem, "clientWhatsapp"> & {
+// Public tracker — zero PII exposed (no clientWhatsapp, clientName, projectBrief, budgetEstimate, or DB ids)
+export interface TrackerOrderItem {
+  orderCode: string;
+  status: OrderStatus;
+  adminNote: string | null;
+  updatedAt: string;
+  service?: { title: string; slug?: string } | null;
+  hasSubmittedTestimonial?: boolean;
   adminWhatsapp?: string;
-};
+}
 
 // ─── Testimonial Types ────────────────────────────────────────────────────────
 export interface TestimonialItem {

@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { logActivity } from "@/lib/activity-logger";
+import { requireAdmin } from "@/lib/auth";
 import type { ApiResponse, PaginatedResponse, ServiceItem } from "@/types";
 
 // GET /api/services — public + admin list
@@ -24,6 +25,9 @@ export async function GET(req: NextRequest) {
 // POST /api/services — admin create
 export async function POST(req: NextRequest) {
   try {
+    const authError = await requireAdmin(req);
+    if (authError) return authError;
+
     const body = await req.json();
     const { title, slug, category, shortDesc, priceStart, features, isActive, sortOrder } = body;
 

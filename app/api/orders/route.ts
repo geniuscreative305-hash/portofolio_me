@@ -2,31 +2,40 @@ import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { Prisma } from "@prisma/client";
 import { logActivity } from "@/lib/activity-logger";
+import { requireAdmin } from "@/lib/auth";
+import { getClientIp, checkGeneralRateLimit } from "@/lib/rate-limit";
 import type { ApiResponse, PaginatedResponse, OrderItem } from "@/types";
 
-// ── Helper: generate sequential daily order code ──────────────────────────────
+// ── Helper: generate non-guessable sequential order code with random suffix ──
+function generateRandomSuffix(len = 4): string {
+  const chars = "ABCDEFGHJKLMNPQRSTUVWXYZ23456789";
+  let result = "";
+  for (let i = 0; i < len; i++) {
+    result += chars.charAt(Math.floor(Math.random() * chars.length));
+  }
+  return result;
+}
+
 async function generateOrderCode(): Promise<string> {
   const now = new Date();
   const dateStr = now.toISOString().slice(0, 10).replace(/-/g, ""); // YYYYMMDD
   const prefix = `ORD-${dateStr}-`;
 
-  const lastOrder = await prisma.order.findFirst({
+  const countToday = await prisma.order.count({
     where: { orderCode: { startsWith: prefix } },
-    orderBy: { orderCode: "desc" },
-    select: { orderCode: true },
   });
 
-  let nextNum = 1;
-  if (lastOrder) {
-    const parts = lastOrder.orderCode.split("-");
-    nextNum = parseInt(parts[parts.length - 1], 10) + 1;
-  }
+  const nextNum = countToday + 1;
+  const suffix = generateRandomSuffix(4);
 
-  return `${prefix}${String(nextNum).padStart(4, "0")}`;
+  return `${prefix}${String(nextNum).padStart(3, "0")}-${suffix}`;
 }
 
-// GET /api/orders — admin paginated list
+// GET /api/orders — Admin only paginated list
 export async function GET(req: NextRequest) {
+  const authError = await requireAdmin(req);
+  if (authError) return authError;
+
   const { searchParams } = new URL(req.url);
   const page = Math.max(1, parseInt(searchParams.get("page") ?? "1", 10));
   const pageSize = Math.min(50, parseInt(searchParams.get("pageSize") ?? "20", 10));
@@ -65,19 +74,86 @@ export async function GET(req: NextRequest) {
   });
 }
 
-// POST /api/orders — public order submission
+// POST /api/orders — public order submission with anti-spam & strict validation
 export async function POST(req: NextRequest) {
   try {
+    const ip = getClientIp(req);
+    // Rate limit: max 5 orders per 10 minutes per IP
+    const rateCheck = checkGeneralRateLimit(`order:${ip}`, 5, 10 * 60 * 1000);
+    if (!rateCheck.allowed) {
+      return NextResponse.json<ApiResponse>(
+        {
+          success: false,
+          error: "Terlalu banyak permintaan pemesanan dari perangkat ini. Silakan tunggu beberapa saat sebelum mencoba lagi.",
+        },
+        { status: 429 }
+      );
+    }
+
     const body = await req.json();
+
+    // Honeypot check: website_url must be completely empty/undefined
+    if (body.website_url) {
+      return NextResponse.json<ApiResponse>(
+        { success: false, error: "Spam request rejected." },
+        { status: 400 }
+      );
+    }
+
     const { clientName, clientWhatsapp, serviceId, projectBrief, budgetEstimate } = body;
 
-    if (!clientName || !clientWhatsapp || !serviceId || !projectBrief || !budgetEstimate) {
-      return NextResponse.json<ApiResponse>({ success: false, error: "Missing required fields" }, { status: 400 });
+    // Strict validation
+    if (
+      typeof clientName !== "string" ||
+      clientName.trim().length < 2 ||
+      clientName.trim().length > 100
+    ) {
+      return NextResponse.json<ApiResponse>(
+        { success: false, error: "Nama pemesan harus berupa teks antara 2 hingga 100 karakter." },
+        { status: 400 }
+      );
+    }
+
+    const cleanWhatsapp = typeof clientWhatsapp === "string" ? clientWhatsapp.replace(/\D/g, "") : "";
+    if (cleanWhatsapp.length < 9 || cleanWhatsapp.length > 20) {
+      return NextResponse.json<ApiResponse>(
+        { success: false, error: "Nomor WhatsApp harus valid (antara 9 hingga 20 digit angka)." },
+        { status: 400 }
+      );
+    }
+
+    if (typeof serviceId !== "string" || !serviceId.trim()) {
+      return NextResponse.json<ApiResponse>(
+        { success: false, error: "ID layanan wajib disertakan." },
+        { status: 400 }
+      );
+    }
+
+    if (
+      typeof projectBrief !== "string" ||
+      projectBrief.trim().length < 10 ||
+      projectBrief.trim().length > 2000
+    ) {
+      return NextResponse.json<ApiResponse>(
+        { success: false, error: "Brief proyek harus berisi penjelasan antara 10 hingga 2000 karakter." },
+        { status: 400 }
+      );
+    }
+
+    if (
+      typeof budgetEstimate !== "string" ||
+      budgetEstimate.trim().length < 2 ||
+      budgetEstimate.trim().length > 100
+    ) {
+      return NextResponse.json<ApiResponse>(
+        { success: false, error: "Estimasi budget harus berupa teks yang valid (maksimal 100 karakter)." },
+        { status: 400 }
+      );
     }
 
     // Verify service exists and is active
     const service = await prisma.service.findFirst({
-      where: { id: serviceId, isActive: true },
+      where: { id: serviceId.trim(), isActive: true },
     });
     if (!service) {
       return NextResponse.json<ApiResponse>({ success: false, error: "Service not found or inactive" }, { status: 404 });
@@ -86,7 +162,7 @@ export async function POST(req: NextRequest) {
     // Verify site is open for orders
     const setting = await prisma.siteSetting.findUnique({ where: { id: "global" } });
     if (!setting?.isOpenOrder) {
-      return NextResponse.json<ApiResponse>({ success: false, error: "Order system is currently closed" }, { status: 503 });
+      return NextResponse.json<ApiResponse>({ success: false, error: "Sistem pemesanan saat ini sedang ditutup sementara." }, { status: 503 });
     }
 
     const orderCode = await generateOrderCode();
@@ -94,11 +170,11 @@ export async function POST(req: NextRequest) {
     const order = await prisma.order.create({
       data: {
         orderCode,
-        clientName,
-        clientWhatsapp,
-        serviceId,
-        projectBrief,
-        budgetEstimate,
+        clientName: clientName.trim(),
+        clientWhatsapp: cleanWhatsapp,
+        serviceId: service.id,
+        projectBrief: projectBrief.trim(),
+        budgetEstimate: budgetEstimate.trim(),
         status: "PENDING",
       },
     });
@@ -113,7 +189,7 @@ export async function POST(req: NextRequest) {
     // Build WhatsApp URL
     const wa = setting.whatsappNumber.replace(/\D/g, "");
     const msg = encodeURIComponent(
-      `Halo! Saya ingin konfirmasi pesanan saya:\n\n*Order Code:* ${orderCode}\n*Nama:* ${clientName}\n*Layanan:* ${service.title}\n*Brief:* ${projectBrief}\n*Budget:* ${budgetEstimate}\n\nMohon dikonfirmasi. Terima kasih!`
+      `Halo! Saya ingin konfirmasi pesanan saya:\n\n*Order Code:* ${orderCode}\n*Nama:* ${clientName.trim()}\n*Layanan:* ${service.title}\n*Brief:* ${projectBrief.trim()}\n*Budget:* ${budgetEstimate.trim()}\n\nMohon dikonfirmasi. Terima kasih!`
     );
     const waUrl = `https://wa.me/${wa}?text=${msg}`;
 

@@ -13,6 +13,7 @@ export default function TestimonialPage() {
     rating: 5,
     content: "",
   });
+  const [honeypot, setHoneypot] = useState("");
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
   const [success, setSuccess] = useState(false);
@@ -26,7 +27,7 @@ export default function TestimonialPage() {
       const res = await fetch("/api/testimonials", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ ...form, orderCode }),
+        body: JSON.stringify({ ...form, orderCode, website_url: honeypot }),
       });
       const data = await res.json();
 
@@ -75,6 +76,17 @@ export default function TestimonialPage() {
           </div>
 
           <form onSubmit={handleSubmit} className="glass-card p-8 space-y-6">
+            {/* Honeypot field for bot spam trap */}
+            <div className="hidden" aria-hidden="true" style={{ display: "none" }}>
+              <input
+                type="text"
+                name="website_url"
+                value={honeypot}
+                onChange={(e) => setHoneypot(e.target.value)}
+                tabIndex={-1}
+                autoComplete="off"
+              />
+            </div>
             {/* Rating */}
             <div>
               <label className="block text-sm font-medium text-white/70 mb-3">Rating *</label>

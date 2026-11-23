@@ -1,14 +1,18 @@
 import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { logActivity } from "@/lib/activity-logger";
+import { requireAdmin } from "@/lib/auth";
 import type { ApiResponse } from "@/types";
 
-// PATCH /api/orders/[id] — update status or admin note
+// PATCH /api/orders/[id] — update status or admin note (Admin only)
 export async function PATCH(
   req: NextRequest,
   { params }: { params: { id: string } }
 ) {
   try {
+    const authError = await requireAdmin(req);
+    if (authError) return authError;
+
     const { id } = params;
     const body = await req.json();
     const { status, adminNote } = body;
@@ -36,12 +40,15 @@ export async function PATCH(
   }
 }
 
-// DELETE /api/orders/[id]
+// DELETE /api/orders/[id] (Admin only)
 export async function DELETE(
   req: NextRequest,
   { params }: { params: { id: string } }
 ) {
   try {
+    const authError = await requireAdmin(req);
+    if (authError) return authError;
+
     const { id } = params;
     const order = await prisma.order.delete({ where: { id } });
 

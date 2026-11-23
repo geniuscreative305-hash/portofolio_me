@@ -257,43 +257,33 @@ function TrackContent() {
                   </div>
                 </div>
 
-                {/* Details Grid */}
-                <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
+                {/* Details Grid (Zero-PII Secure) */}
+                <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
                   <div className="space-y-1">
-                    <p className="text-xs text-white/40">Nama Pemesan</p>
-                    <p className="text-sm font-semibold text-white">{result.clientName}</p>
-                  </div>
-                  <div className="space-y-1">
-                    <p className="text-xs text-white/40">Layanan</p>
+                    <p className="text-xs text-white/40">Layanan yang Dipesan</p>
                     <p className="text-sm font-semibold text-emerald-400">
                       {result.service?.title ?? "Kustom"}
                     </p>
                   </div>
                   <div className="space-y-1">
-                    <p className="text-xs text-white/40">Estimasi Budget</p>
-                    <p className="text-sm font-semibold text-white">{result.budgetEstimate}</p>
+                    <p className="text-xs text-white/40">Status Pengerjaan</p>
+                    <p className="text-sm font-semibold text-white">
+                      {STATUS_MAP[status ?? ""]?.label ?? status}
+                    </p>
                   </div>
                   <div className="space-y-1">
-                    <p className="text-xs text-white/40">Tanggal Order</p>
+                    <p className="text-xs text-white/40">Pembaruan Terakhir</p>
                     <p className="text-sm font-semibold text-white">
-                      {new Date(result.createdAt).toLocaleDateString("id-ID", {
+                      {new Date(result.updatedAt).toLocaleDateString("id-ID", {
                         day: "numeric",
                         month: "short",
                         year: "numeric",
+                        hour: "2-digit",
+                        minute: "2-digit",
                       })}
                     </p>
                   </div>
                 </div>
-
-                {/* Brief Summary */}
-                {result.projectBrief && (
-                  <div className="pt-4 border-t border-white/5 space-y-1">
-                    <p className="text-xs text-white/40">Brief Proyek:</p>
-                    <p className="text-xs text-white/70 italic line-clamp-3 bg-black/20 p-3 rounded-xl border border-white/5">
-                      &quot;{result.projectBrief}&quot;
-                    </p>
-                  </div>
-                )}
               </div>
 
               {/* ── 4-Stage Milestone Progress Tracker ── */}
@@ -437,7 +427,7 @@ function TrackContent() {
               <div className="flex flex-col sm:flex-row gap-3 pt-2">
                 <a
                   href={`https://wa.me/${(result.adminWhatsapp || "6281234567890").replace(/\D/g, "")}?text=${encodeURIComponent(
-                    `Halo Azi! Saya ingin menanyakan update progres untuk kode order: ${result.orderCode} atas nama ${result.clientName}.`
+                    `Halo Azi! Saya ingin menanyakan update progres untuk kode order: ${result.orderCode}.`
                   )}`}
                   target="_blank"
                   rel="noopener noreferrer"

@@ -1,11 +1,15 @@
 import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { logActivity } from "@/lib/activity-logger";
+import { requireAdmin } from "@/lib/auth";
 import type { ApiResponse, BulkActionPayload } from "@/types";
 
-// POST /api/orders/bulk
+// POST /api/orders/bulk (Admin only)
 export async function POST(req: NextRequest) {
   try {
+    const authError = await requireAdmin(req);
+    if (authError) return authError;
+
     const body: BulkActionPayload = await req.json();
     const { ids, action } = body;
 

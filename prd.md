@@ -282,6 +282,14 @@ portofolio/
 - v1.5.2 (2026-11-23): Mobile Navbar Open/Close Drawer & Responsive Grid Balance (Desktop 3 Cards, Mobile 4 Cards):
   - Mobile Navbar: Dilengkapi tombol hamburger toggle (ikon menu buka / tutup X) dan drawer animasi Framer Motion (`AnimatePresence`) untuk navigasi mobile yang rapi.
   - Responsive Grid Symmetry: Portofolio beranda mengambil 4 karya (`take: 4`). Di mobile tampil penuh 4 kartu (2 baris x 2 kolom simetris `grid-cols-2`), sedangkan di desktop kartu ke-4 otomatis disembunyikan (`lg:hidden`) sehingga tampil tepat 3 kartu (1 baris x 3 kolom `lg:grid-cols-3`).
+- v1.6.0 (2026-11-23): Full-Stack Security Audit & Hardening:
+  - Strict Server-Side Admin Authorization: Helper `requireAdmin(req)` di `lib/auth.ts` diterapkan pada seluruh 14 mutating/admin API routes (`/api/upload`, `/api/orders/*`, `/api/portfolio/*`, `/api/services/*`, `/api/settings`, `/api/testimonials/*`, `/api/activity-logs`) mengembalikan 401 seketika jika session tidak valid.
+  - Login Brute-Force Rate Limiting: Rate limiter IP di `lib/rate-limit.ts` memblokir akses login 15 menit setelah 5 kali gagal berturut-turut (429 Too Many Requests).
+  - Secure Vercel Blob Upload: `/api/upload` diproteksi `requireAdmin`, divalidasi MIME type (`image/jpeg`, `image/png`, `image/webp`), dan dibatasi maksimal 4MB.
+  - Zero-PII Public Order Tracker: `/api/tracker` menggunakan kueri `select` ketat tanpa `clientName`, `clientWhatsapp`, `projectBrief`, `budgetEstimate`, atau internal IDs. Generator `orderCode` dilengkapi suffix acak alfanumerik (`ORD-YYYYMMDD-001-X7K9`).
+  - Anti-Spam & Form Validation: Hidden honeypot field (`website_url`) + submission rate limit (5 request/10 min) + validasi ketat panjang payload di server pada form Order dan Testimoni.
+  - HTTP Security Headers: Diterapkan di `next.config.mjs` (`X-Frame-Options: DENY`, `X-Content-Type-Options: nosniff`, `Referrer-Policy: strict-origin-when-cross-origin`, `Permissions-Policy`, `X-XSS-Protection`).
+  - Environment Safety: Seluruh kredensial sensitif (`DATABASE_URL`, `JWT_SECRET`, `BLOB_READ_WRITE_TOKEN`) terkonfirmasi murni server-side tanpa prefix `NEXT_PUBLIC_`.
 
 
 

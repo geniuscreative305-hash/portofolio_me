@@ -2,14 +2,18 @@ import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { deleteBlob } from "@/lib/blob";
 import { logActivity } from "@/lib/activity-logger";
+import { requireAdmin } from "@/lib/auth";
 import type { ApiResponse } from "@/types";
 
-// PATCH /api/portfolio/[id]
+// PATCH /api/portfolio/[id] (Admin only)
 export async function PATCH(
   req: NextRequest,
   { params }: { params: { id: string } }
 ) {
   try {
+    const authError = await requireAdmin(req);
+    if (authError) return authError;
+
     const { id } = params;
     const body = await req.json();
 
@@ -43,12 +47,15 @@ export async function PATCH(
   }
 }
 
-// DELETE /api/portfolio/[id]
+// DELETE /api/portfolio/[id] (Admin only)
 export async function DELETE(
   req: NextRequest,
   { params }: { params: { id: string } }
 ) {
   try {
+    const authError = await requireAdmin(req);
+    if (authError) return authError;
+
     const { id } = params;
 
     const portfolio = await prisma.portfolio.delete({ where: { id } });

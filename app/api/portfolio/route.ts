@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { Prisma } from "@prisma/client";
 import { logActivity } from "@/lib/activity-logger";
+import { requireAdmin } from "@/lib/auth";
 import type { ApiResponse, PaginatedResponse, PortfolioItem } from "@/types";
 
 // GET /api/portfolio
@@ -47,6 +48,9 @@ export async function GET(req: NextRequest) {
 // POST /api/portfolio — admin create
 export async function POST(req: NextRequest) {
   try {
+    const authError = await requireAdmin(req);
+    if (authError) return authError;
+
     const body = await req.json();
     const {
       title, category, shortDesc, fullDescription,

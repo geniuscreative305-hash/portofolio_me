@@ -2,10 +2,14 @@ import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { Prisma } from "@prisma/client";
 import { logActivity } from "@/lib/activity-logger";
+import { requireAdmin } from "@/lib/auth";
 import type { ApiResponse } from "@/types";
 
-// GET /api/orders/export — CSV export
+// GET /api/orders/export — CSV export (Admin only)
 export async function GET(req: NextRequest) {
+  const authError = await requireAdmin(req);
+  if (authError) return authError;
+
   const { searchParams } = new URL(req.url);
   const status = searchParams.get("status");
   const from = searchParams.get("from");

@@ -260,6 +260,7 @@ function OrderSection({
     projectBrief: "",
     budgetEstimate: "",
   });
+  const [honeypot, setHoneypot] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [result, setResult] = useState<{ orderCode: string; waUrl: string } | null>(null);
   const [error, setError] = useState("");
@@ -278,7 +279,7 @@ function OrderSection({
       const res = await fetch("/api/orders", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(form),
+        body: JSON.stringify({ ...form, website_url: honeypot }),
       });
       const data = await res.json();
 
@@ -372,6 +373,17 @@ function OrderSection({
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true }}
         >
+          {/* Honeypot field for spam prevention */}
+          <div className="hidden" aria-hidden="true" style={{ display: "none" }}>
+            <input
+              type="text"
+              name="website_url"
+              value={honeypot}
+              onChange={(e) => setHoneypot(e.target.value)}
+              tabIndex={-1}
+              autoComplete="off"
+            />
+          </div>
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
             <div>
               <label className="block text-sm font-medium text-white/70 mb-2">Nama Lengkap *</label>

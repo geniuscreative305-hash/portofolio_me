@@ -1,14 +1,18 @@
 import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { logActivity } from "@/lib/activity-logger";
+import { requireAdmin } from "@/lib/auth";
 import type { ApiResponse } from "@/types";
 
-// PATCH /api/testimonials/[id] — approve / unapprove
+// PATCH /api/testimonials/[id] — approve / unapprove (Admin only)
 export async function PATCH(
   req: NextRequest,
   { params }: { params: { id: string } }
 ) {
   try {
+    const authError = await requireAdmin(req);
+    if (authError) return authError;
+
     const { id } = params;
     const { isApproved } = await req.json();
 
@@ -31,12 +35,15 @@ export async function PATCH(
   }
 }
 
-// DELETE /api/testimonials/[id]
+// DELETE /api/testimonials/[id] (Admin only)
 export async function DELETE(
   req: NextRequest,
   { params }: { params: { id: string } }
 ) {
   try {
+    const authError = await requireAdmin(req);
+    if (authError) return authError;
+
     const { id } = params;
     const testimonial = await prisma.testimonial.delete({ where: { id } });
 

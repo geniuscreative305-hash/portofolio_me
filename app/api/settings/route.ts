@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { logActivity } from "@/lib/activity-logger";
+import { requireAdmin } from "@/lib/auth";
 import bcrypt from "bcryptjs";
 import type { ApiResponse, SiteSettingItem } from "@/types";
 
@@ -30,9 +31,12 @@ export async function GET() {
   return NextResponse.json<ApiResponse<SiteSettingItem>>({ success: true, data: setting as unknown as SiteSettingItem });
 }
 
-// PATCH /api/settings
+// PATCH /api/settings (Strict Admin only)
 export async function PATCH(req: NextRequest) {
   try {
+    const authError = await requireAdmin(req);
+    if (authError) return authError;
+
     const body = await req.json();
     const {
       ownerName, profilePhotoUrl, aboutBio, experienceYears,
