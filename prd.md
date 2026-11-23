@@ -278,8 +278,10 @@ portofolio/
   - Navbar Sliding Gradient Active Pill: Indikator pil meluncur Framer Motion (`layoutId="activeNav"`) terintegrasi scroll spy.
   - Hero Responsive 2-Col Mobile & Tablet: Foto profil dan headline sejajar 2 kolom (`grid-cols-12` 7:5 di mobile & tablet) above-the-fold, lencana mengambang diskalakan proporsional.
   - 2-Column Mobile Grid: Layanan & Harga serta Portofolio tampil 2 kolom di mobile (`grid-cols-2`) dengan tipografi dan padding yang disesuaikan.
-  - Limitasi 4 Proyek Beranda + Tombol "Read More": Tampil maksimal 4 proyek di beranda dengan tombol CTA menuju `/portfolio`.
   - Halaman Arsip Khusus `/portfolio`: Server Component dengan live search, filter kategori, dan pop-up modal studi kasus.
+- v1.5.1 (2026-11-23): Optimasi Portofolio Beranda Desktop:
+  - Tampilan portofolio beranda dibatasi tepat 3 card (`take: 3`) agar pada layout desktop (`lg:grid-cols-3`) menghasilkan 1 baris yang simetris, rapi, dan seimbang.
+  - Tombol "Lihat Semua Karya / Read More" terletak langsung di bawah 3 card tersebut untuk mengarahkan pengguna ke rute arsip `/portfolio`.
 
 
 
