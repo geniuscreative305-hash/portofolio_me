@@ -35,7 +35,7 @@ export default async function HomePage() {
         },
       },
       orderBy: [{ isFeatured: "desc" }, { createdAt: "desc" }],
-      take: 3,
+      take: 4,
     }),
     prisma.testimonial.findMany({
       where: { isApproved: true },

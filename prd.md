@@ -279,9 +279,9 @@ portofolio/
   - Hero Responsive 2-Col Mobile & Tablet: Foto profil dan headline sejajar 2 kolom (`grid-cols-12` 7:5 di mobile & tablet) above-the-fold, lencana mengambang diskalakan proporsional.
   - 2-Column Mobile Grid: Layanan & Harga serta Portofolio tampil 2 kolom di mobile (`grid-cols-2`) dengan tipografi dan padding yang disesuaikan.
   - Halaman Arsip Khusus `/portfolio`: Server Component dengan live search, filter kategori, dan pop-up modal studi kasus.
-- v1.5.1 (2026-11-23): Optimasi Portofolio Beranda Desktop:
-  - Tampilan portofolio beranda dibatasi tepat 3 card (`take: 3`) agar pada layout desktop (`lg:grid-cols-3`) menghasilkan 1 baris yang simetris, rapi, dan seimbang.
-  - Tombol "Lihat Semua Karya / Read More" terletak langsung di bawah 3 card tersebut untuk mengarahkan pengguna ke rute arsip `/portfolio`.
+- v1.5.2 (2026-11-23): Mobile Navbar Open/Close Drawer & Responsive Grid Balance (Desktop 3 Cards, Mobile 4 Cards):
+  - Mobile Navbar: Dilengkapi tombol hamburger toggle (ikon menu buka / tutup X) dan drawer animasi Framer Motion (`AnimatePresence`) untuk navigasi mobile yang rapi.
+  - Responsive Grid Symmetry: Portofolio beranda mengambil 4 karya (`take: 4`). Di mobile tampil penuh 4 kartu (2 baris x 2 kolom simetris `grid-cols-2`), sedangkan di desktop kartu ke-4 otomatis disembunyikan (`lg:hidden`) sehingga tampil tepat 3 kartu (1 baris x 3 kolom `lg:grid-cols-3`).
 
 
 

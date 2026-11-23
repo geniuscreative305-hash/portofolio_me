@@ -507,6 +507,7 @@ export default function PortfolioClientView({
   const [preselectedServiceId, setPreselectedServiceId] = useState<string | undefined>();
   const [activeCategory, setActiveCategory] = useState<FilterCategory>("ALL");
   const [activeNav, setActiveNav] = useState("home");
+  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const orderFormRef = useRef<HTMLElement | null>(null);
 
   // Scroll Spy for Navbar Active Pill
@@ -616,22 +617,84 @@ export default function PortfolioClientView({
             </button>
           </div>
 
-          {/* Mobile Navigation */}
+          {/* Mobile Navigation Header */}
           <div className="flex sm:hidden items-center gap-2">
-            <a href="#about" className="text-xs text-white/70 py-1.5 px-2">
-              About
-            </a>
-            <a href="/track" className="btn-secondary py-1.5 px-2.5 text-xs flex items-center gap-1 text-emerald-400 border-emerald-500/30">
+            <a
+              href="/track"
+              className="btn-secondary py-1.5 px-2.5 text-xs flex items-center gap-1 text-emerald-400 border-emerald-500/30"
+            >
               <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" />
               </svg>
               <span>Cek Order</span>
             </a>
-            <button onClick={() => scrollToOrder()} className="btn-primary py-1.5 px-2.5 text-xs">
-              Order
+            <button
+              onClick={() => setIsMobileMenuOpen((prev) => !prev)}
+              aria-label={isMobileMenuOpen ? "Tutup Menu" : "Buka Menu"}
+              className="p-2 rounded-xl bg-white/5 border border-white/10 text-white/80 hover:text-white transition-colors focus:outline-none"
+            >
+              {isMobileMenuOpen ? (
+                <svg className="w-5 h-5 text-emerald-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                </svg>
+              ) : (
+                <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h16M4 18h16" />
+                </svg>
+              )}
             </button>
           </div>
         </div>
+
+        {/* Mobile Navigation Dropdown / Drawer */}
+        <AnimatePresence>
+          {isMobileMenuOpen && (
+            <motion.div
+              initial={{ opacity: 0, height: 0 }}
+              animate={{ opacity: 1, height: "auto" }}
+              exit={{ opacity: 0, height: 0 }}
+              transition={{ duration: 0.25, ease: "easeInOut" }}
+              className="sm:hidden overflow-hidden border-b border-white/10 bg-[#090d16]/95 backdrop-blur-xl"
+            >
+              <div className="px-5 py-4 space-y-1.5">
+                {NAV_ITEMS.map((item) => {
+                  const isActive = activeNav === item.id;
+                  return (
+                    <a
+                      key={item.id}
+                      href={item.href}
+                      onClick={() => {
+                        setActiveNav(item.id);
+                        setIsMobileMenuOpen(false);
+                      }}
+                      className={`flex items-center justify-between px-3 py-2.5 rounded-xl text-sm font-medium transition-all ${
+                        isActive
+                          ? "bg-gradient-to-r from-emerald-500/20 to-cyan-500/10 text-emerald-400 border border-emerald-400/30 font-semibold"
+                          : "text-white/70 hover:text-white hover:bg-white/5"
+                      }`}
+                    >
+                      <span>{item.label}</span>
+                      {isActive && (
+                        <span className="w-2 h-2 rounded-full bg-emerald-400 shadow-[0_0_8px_rgba(52,211,153,0.8)]" />
+                      )}
+                    </a>
+                  );
+                })}
+                <div className="pt-2 mt-2 border-t border-white/10">
+                  <button
+                    onClick={() => {
+                      setIsMobileMenuOpen(false);
+                      scrollToOrder();
+                    }}
+                    className="btn-primary w-full py-2.5 text-center text-sm"
+                  >
+                    Pesan Layanan / Order
+                  </button>
+                </div>
+              </div>
+            </motion.div>
+          )}
+        </AnimatePresence>
       </nav>
 
       {/* ── Hero (Home) ── 2-Column Responsive on Mobile & Tablet */}
@@ -1047,7 +1110,7 @@ export default function PortfolioClientView({
           {/* Portfolio Grid with Framer Motion Layout ── 2-Column on Mobile */}
           <motion.div layout className="grid grid-cols-2 gap-3 sm:gap-6 lg:grid-cols-3">
             <AnimatePresence>
-              {filteredPortfolio.map((item) => (
+              {filteredPortfolio.map((item, index) => (
                 <motion.div
                   layout
                   key={item.id}
@@ -1055,6 +1118,7 @@ export default function PortfolioClientView({
                   animate={{ opacity: 1, scale: 1 }}
                   exit={{ opacity: 0, scale: 0.95 }}
                   transition={{ duration: 0.3 }}
+                  className={index === 3 ? "block lg:hidden" : ""}
                 >
                   <SpotlightCard className="glass-card-hover overflow-hidden cursor-pointer group h-full flex flex-col">
                     <div
