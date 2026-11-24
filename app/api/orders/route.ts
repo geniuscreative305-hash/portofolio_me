@@ -4,6 +4,7 @@ import { Prisma } from "@prisma/client";
 import { logActivity } from "@/lib/activity-logger";
 import { requireAdmin } from "@/lib/auth";
 import { getClientIp, checkGeneralRateLimit } from "@/lib/rate-limit";
+import { detectSqlInjection } from "@/lib/security";
 import type { ApiResponse, PaginatedResponse, OrderItem } from "@/types";
 
 // ── Helper: generate non-guessable sequential order code with random suffix ──
@@ -45,6 +46,9 @@ export async function GET(req: NextRequest) {
   const where: Prisma.OrderWhereInput = {};
   if (status) where.status = status as never;
   if (search) {
+    if (detectSqlInjection(search)) {
+      return NextResponse.json<ApiResponse>({ success: false, error: "Pola pencarian tidak valid." }, { status: 400 });
+    }
     where.OR = [
       { orderCode: { contains: search, mode: "insensitive" } },
       { clientName: { contains: search, mode: "insensitive" } },
@@ -101,6 +105,18 @@ export async function POST(req: NextRequest) {
     }
 
     const { clientName, clientWhatsapp, serviceId, projectBrief, budgetEstimate } = body;
+
+    // Strict SQL Injection & XSS pattern inspection
+    if (
+      detectSqlInjection(clientName) ||
+      detectSqlInjection(projectBrief) ||
+      detectSqlInjection(budgetEstimate)
+    ) {
+      return NextResponse.json<ApiResponse>(
+        { success: false, error: "Pola karakter berbahaya terdeteksi pada data masukan." },
+        { status: 400 }
+      );
+    }
 
     // Strict validation
     if (

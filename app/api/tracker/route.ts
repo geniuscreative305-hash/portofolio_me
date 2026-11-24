@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { getClientIp, checkGeneralRateLimit } from "@/lib/rate-limit";
+import { detectSqlInjection } from "@/lib/security";
 import type { ApiResponse, TrackerOrderItem } from "@/types";
 
 // GET /api/tracker?code=ORD-...
@@ -18,7 +19,7 @@ export async function GET(req: NextRequest) {
   const { searchParams } = new URL(req.url);
   const code = searchParams.get("code");
 
-  if (!code || typeof code !== "string" || code.trim().length > 50) {
+  if (!code || typeof code !== "string" || code.trim().length > 50 || detectSqlInjection(code)) {
     return NextResponse.json<ApiResponse>({ success: false, error: "Kode order wajib diisi dan valid." }, { status: 400 });
   }
 

@@ -3,6 +3,7 @@ import { prisma } from "@/lib/prisma";
 import { Prisma } from "@prisma/client";
 import { logActivity } from "@/lib/activity-logger";
 import { requireAdmin } from "@/lib/auth";
+import { detectSqlInjection } from "@/lib/security";
 import type { ApiResponse, PaginatedResponse, PortfolioItem } from "@/types";
 
 // GET /api/portfolio
@@ -16,6 +17,9 @@ export async function GET(req: NextRequest) {
   const where: Prisma.PortfolioWhereInput = {};
   if (status) where.status = status as never;
   if (search) {
+    if (detectSqlInjection(search)) {
+      return NextResponse.json<ApiResponse>({ success: false, error: "Pola pencarian tidak valid." }, { status: 400 });
+    }
     where.OR = [
       { title: { contains: search, mode: "insensitive" } },
       { category: { contains: search, mode: "insensitive" } },

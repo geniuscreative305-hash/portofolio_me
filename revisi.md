@@ -5,19 +5,15 @@ Status Antrean: **KOSONG / SELURUH REVISI TELAH DITERAPKAN & DISINKRONISASI KE P
 ---
 
 ### Riwayat Pembaruan Terakhir:
-- **v1.6.0 (2026-11-23):** Full-Stack Security Audit & Hardening:
-  1. `requireAdmin` server-side authorization di seluruh mutating/admin API routes (401 Unauthorized guard).
-  2. Login brute-force rate limiter (5 failed attempts -> 15 min lock, 429 Too Many Requests).
-  3. Secure Vercel Blob Upload (`requireAdmin`, MIME type whitelist, 4MB file size cap).
-  4. Zero-PII Public Tracker (`select` ketat, PII dihapus total, non-guessable `orderCode` suffix).
-  5. Anti-spam honeypot (`website_url`) + submission rate limit + strict server validation pada form Order & Testimoni.
-  6. HTTP Security Headers di `next.config.mjs` + audit variabel lingkungan rahasia.
-- **v1.5.2 (2026-11-23):** Mobile Navbar Open/Close Drawer + Responsive Grid Portofolio Beranda (Desktop 3 card 1x3 simetris, Mobile 4 card 2x2 simetris).
-- **v1.5.0 (2026-11-23):** Navbar Sliding Gradient Pill Indicator (`layoutId="activeNav"`), Hero 2-Col Mobile & Tablet Alignment, 2-Col Mobile Grid Services & Portfolio, dan Rute Arsip Khusus `/portfolio`.
-- **v1.4.0 (2026-11-23):** Perapihan Panel Admin (Bullet-proof layout, Route Progress Bar, fast prefetching, page transition animations, responsif `max-w-7xl`).
-- **v1.3.0 (2026-11-23):** Penambahan Menu Cek Order & Sistem Tracking Progres Pekerjaan.
-- **v1.2.0 (2026-11-23):** Server-Rendered Zero-Delay Homepage, Filter Kategori Portofolio, Admin PIN `porto123`.
-- **v1.1.0 (2026-11-23):** Redesain UI/UX Pro-Max, Profil Azi Ramdani, 3 Floating Badges, Section About.
+- **v1.7.0 (2026-11-24):** Advanced Cyber Security, Deception Tactics & Anti-Malware Hardening:
+  1. Honeypot URL Traps di `middleware.ts` (`/wp-admin`, `/.env`, dll.) untuk menjebak & memblokir bot scanner.
+  2. Two-Tier Protected Admin Gate: Gate Passkey (`_sec_gate_token`) + Master PIN (`_sec_adm_token`) + invisible honeypot trap (`_auth_usr_trap`).
+  3. Obfuscated Cookie Name: `__Host-zk_x9k_vault` (standar keamanan browser tertinggi).
+  4. Anti-Malware / Anti-Virus Upload Protection: Deep Binary Magic-Byte Inspection (JPEG, PNG, WebP) + sanitasi nama berkas & pencegahan double extension (.php.jpg).
+  5. SQL Injection Shield: `lib/security.ts` mendeteksi dan menolak pola injeksi SQL/XSS di semua rute dan masukan publik.
+  6. Server Fingerprinting Cloak (`poweredByHeader: false`) + Content-Security-Policy (CSP) headers di `next.config.mjs`.
+- **v1.6.0 (2026-11-23):** Full-Stack Security Audit & Hardening.
+- **v1.5.2 (2026-11-23):** Mobile Navbar Open/Close Drawer + Responsive Grid Portofolio Beranda.
 
 ---
 *Untuk mengajukan revisi atau fitur baru berikutnya, cukup ketikkan permintaan Anda langsung di jendela chat.*

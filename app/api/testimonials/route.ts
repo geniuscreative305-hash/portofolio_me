@@ -3,6 +3,7 @@ import { prisma } from "@/lib/prisma";
 import { logActivity } from "@/lib/activity-logger";
 import { requireAdmin } from "@/lib/auth";
 import { getClientIp, checkGeneralRateLimit } from "@/lib/rate-limit";
+import { detectSqlInjection } from "@/lib/security";
 import type { ApiResponse, PaginatedResponse, TestimonialItem } from "@/types";
 
 // GET /api/testimonials — public approved list or admin full list
@@ -70,6 +71,19 @@ export async function POST(req: NextRequest) {
     }
 
     const { orderCode, clientName, clientRole, rating, content } = body;
+
+    // Strict SQL Injection & XSS pattern inspection
+    if (
+      detectSqlInjection(orderCode) ||
+      detectSqlInjection(clientName) ||
+      detectSqlInjection(clientRole) ||
+      detectSqlInjection(content)
+    ) {
+      return NextResponse.json<ApiResponse>(
+        { success: false, error: "Pola karakter berbahaya terdeteksi." },
+        { status: 400 }
+      );
+    }
 
     if (
       typeof orderCode !== "string" ||

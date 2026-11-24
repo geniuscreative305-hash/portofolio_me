@@ -3,7 +3,8 @@ import { cookies } from "next/headers";
 import { NextRequest, NextResponse } from "next/server";
 import type { ApiResponse } from "@/types";
 
-const COOKIE_NAME = "admin_session";
+const COOKIE_NAME = process.env.NODE_ENV === "production" ? "__Host-zk_x9k_vault" : "zk_x9k_vault";
+const FALLBACK_COOKIE_NAMES = ["__Host-zk_x9k_vault", "zk_x9k_vault", "admin_session"];
 const JWT_SECRET = new TextEncoder().encode(
   process.env.JWT_SECRET ?? "fallback-secret-change-me"
 );
@@ -64,7 +65,14 @@ export async function createAdminSession(): Promise<void> {
 export async function verifyAdminSession(): Promise<AdminPayload | null> {
   try {
     const cookieStore = cookies();
-    const token = cookieStore.get(COOKIE_NAME)?.value;
+    let token: string | undefined;
+    for (const name of FALLBACK_COOKIE_NAMES) {
+      const val = cookieStore.get(name)?.value;
+      if (val) {
+        token = val;
+        break;
+      }
+    }
     if (!token) return null;
 
     const { payload } = await jwtVerify(token, JWT_SECRET);
@@ -79,18 +87,23 @@ export async function verifyAdminSession(): Promise<AdminPayload | null> {
  */
 export async function destroyAdminSession(): Promise<void> {
   const cookieStore = cookies();
-  cookieStore.delete(COOKIE_NAME);
+  for (const name of FALLBACK_COOKIE_NAMES) {
+    cookieStore.delete(name);
+  }
 }
 
 /**
  * Returns the raw token from cookies (for middleware use).
  */
 export function getTokenFromCookieHeader(cookieHeader: string): string | undefined {
-  const match = cookieHeader
-    .split(";")
-    .map((c) => c.trim())
-    .find((c) => c.startsWith(`${COOKIE_NAME}=`));
-  return match?.split("=")[1];
+  const cookiesList = cookieHeader.split(";").map((c) => c.trim());
+  for (const name of FALLBACK_COOKIE_NAMES) {
+    const match = cookiesList.find((c) => c.startsWith(`${name}=`));
+    if (match) {
+      return match.split("=")[1];
+    }
+  }
+  return undefined;
 }
 
 /**

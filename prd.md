@@ -282,14 +282,13 @@ portofolio/
 - v1.5.2 (2026-11-23): Mobile Navbar Open/Close Drawer & Responsive Grid Balance (Desktop 3 Cards, Mobile 4 Cards):
   - Mobile Navbar: Dilengkapi tombol hamburger toggle (ikon menu buka / tutup X) dan drawer animasi Framer Motion (`AnimatePresence`) untuk navigasi mobile yang rapi.
   - Responsive Grid Symmetry: Portofolio beranda mengambil 4 karya (`take: 4`). Di mobile tampil penuh 4 kartu (2 baris x 2 kolom simetris `grid-cols-2`), sedangkan di desktop kartu ke-4 otomatis disembunyikan (`lg:hidden`) sehingga tampil tepat 3 kartu (1 baris x 3 kolom `lg:grid-cols-3`).
-- v1.6.0 (2026-11-23): Full-Stack Security Audit & Hardening:
-  - Strict Server-Side Admin Authorization: Helper `requireAdmin(req)` di `lib/auth.ts` diterapkan pada seluruh 14 mutating/admin API routes (`/api/upload`, `/api/orders/*`, `/api/portfolio/*`, `/api/services/*`, `/api/settings`, `/api/testimonials/*`, `/api/activity-logs`) mengembalikan 401 seketika jika session tidak valid.
-  - Login Brute-Force Rate Limiting: Rate limiter IP di `lib/rate-limit.ts` memblokir akses login 15 menit setelah 5 kali gagal berturut-turut (429 Too Many Requests).
-  - Secure Vercel Blob Upload: `/api/upload` diproteksi `requireAdmin`, divalidasi MIME type (`image/jpeg`, `image/png`, `image/webp`), dan dibatasi maksimal 4MB.
-  - Zero-PII Public Order Tracker: `/api/tracker` menggunakan kueri `select` ketat tanpa `clientName`, `clientWhatsapp`, `projectBrief`, `budgetEstimate`, atau internal IDs. Generator `orderCode` dilengkapi suffix acak alfanumerik (`ORD-YYYYMMDD-001-X7K9`).
-  - Anti-Spam & Form Validation: Hidden honeypot field (`website_url`) + submission rate limit (5 request/10 min) + validasi ketat panjang payload di server pada form Order dan Testimoni.
-  - HTTP Security Headers: Diterapkan di `next.config.mjs` (`X-Frame-Options: DENY`, `X-Content-Type-Options: nosniff`, `Referrer-Policy: strict-origin-when-cross-origin`, `Permissions-Policy`, `X-XSS-Protection`).
-  - Environment Safety: Seluruh kredensial sensitif (`DATABASE_URL`, `JWT_SECRET`, `BLOB_READ_WRITE_TOKEN`) terkonfirmasi murni server-side tanpa prefix `NEXT_PUBLIC_`.
+- v1.7.0 (2026-11-24): Advanced Deception Defense, Anti-Malware Deep Inspection & SQLi Shield:
+  - Deception & Honeypot Traps: `middleware.ts` memblokir bot scanning di rute jebakan (`/wp-admin`, `/wp-login.php`, `/.env`, `/phpmyadmin`). Hint bocoran PIN di halaman login admin dihapus total.
+  - Multi-Tier Admin Gate: Form login admin mewajibkan verifikasi 2 tahap: Security Gate Passkey (`_sec_gate_token`, default `ADMIN-PRO-2026`) + Master PIN (`_sec_adm_token`). Disertai honeypot perangkap bot (`_auth_usr_trap`).
+  - Obfuscated Special Session Variable: Cookie sesi diganti menjadi `__Host-zk_x9k_vault` (standar hardening browser tertinggi anti-cookie hijacking). Payload auth menggunakan key tersamar.
+  - Deep Binary Magic-Byte Inspection (Anti-Virus): `/api/upload` memeriksa tanda tangan biner asli file (`FF D8 FF` JPEG, `89 50 4E 47` PNG, `RIFF...WEBP`). Menolak executable (`MZ`, `ELF`), PHP script webshell, serta ekstensi ganda.
+  - SQL Injection Shield: `lib/security.ts` memeriksa seluruh parameter kueri dan teks masukan dari pola serangan SQLi/XSS di tingkat middleware dan API routes.
+  - Server Fingerprint & CSP: `poweredByHeader: false` di `next.config.mjs` menyembunyikan identitas server + Content-Security-Policy ketat.
 
 
 
