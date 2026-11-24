@@ -3,14 +3,6 @@ import { prisma } from "@/lib/prisma";
 import { createAdminSession } from "@/lib/auth";
 import { logActivity } from "@/lib/activity-logger";
 import { getClientIp, checkLoginRateLimit, recordFailedLogin, resetLoginAttempts } from "@/lib/rate-limit";
-import bcrypt from "bcryptjs";
-import type { ApiResponse } from "@/types";
-
-import { NextRequest, NextResponse } from "next/server";
-import { prisma } from "@/lib/prisma";
-import { createAdminSession } from "@/lib/auth";
-import { logActivity } from "@/lib/activity-logger";
-import { getClientIp, checkLoginRateLimit, recordFailedLogin, resetLoginAttempts } from "@/lib/rate-limit";
 import { detectSqlInjection, timingSafeMatch } from "@/lib/security";
 import bcrypt from "bcryptjs";
 import type { ApiResponse } from "@/types";
