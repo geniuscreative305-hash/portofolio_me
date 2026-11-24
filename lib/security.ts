@@ -1,5 +1,3 @@
-import crypto from "crypto";
-
 /**
  * SQL Injection pattern detection (Defense-in-Depth)
  * Checks string inputs for common SQL injection signatures
@@ -20,14 +18,17 @@ export function detectSqlInjection(input: unknown): boolean {
 }
 
 /**
- * Timing-safe string comparison to protect against timing attacks
+ * Constant-time string comparison to protect against timing attacks
+ * Edge-runtime and Node.js compatible (no node:crypto dependency)
  */
 export function timingSafeMatch(a: string, b: string): boolean {
   if (typeof a !== "string" || typeof b !== "string") return false;
-  const bufA = Buffer.from(a, "utf-8");
-  const bufB = Buffer.from(b, "utf-8");
-  if (bufA.length !== bufB.length) return false;
-  return crypto.timingSafeEqual(bufA, bufB);
+  let mismatch = a.length === b.length ? 0 : 1;
+  const len = Math.min(a.length, b.length);
+  for (let i = 0; i < len; i++) {
+    mismatch |= a.charCodeAt(i) ^ b.charCodeAt(i);
+  }
+  return mismatch === 0;
 }
 
 /**
